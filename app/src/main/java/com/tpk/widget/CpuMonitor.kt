@@ -53,7 +53,6 @@ class CpuMonitor(
                 val totalTime = idleTime + nonIdleTime
 
                 if (isFirstReading) {
-                    // Initialize previous values
                     prevIdleTime = idleTime
                     prevNonIdleTime = nonIdleTime
                     prevTotalTime = totalTime

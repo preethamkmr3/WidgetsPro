@@ -27,8 +27,7 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCpuMonitorService()
             } else {
-                // Handle permission denial
-                // Inform the user that the service cannot run without permissions
+
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
