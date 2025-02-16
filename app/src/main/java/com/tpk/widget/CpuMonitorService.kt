@@ -33,24 +33,19 @@ class CpuMonitorService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // Check Shizuku permission
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            // We cannot request permissions from a Service; stop the service and inform the user
             stopSelf()
             return
         }
 
-        // Create notification channel and start the service in the foreground
         createNotificationChannel()
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
-        // Initialize data points
         repeat(MAX_DATA_POINTS) {
             dataPoints.add(0.0)
         }
 
-        // Initialize and start cpuMonitor
         cpuMonitor = CpuMonitor { cpuUsage, cpuTemperature ->
             updateWidget(cpuUsage, cpuTemperature)
         }
@@ -155,7 +150,7 @@ class CpuMonitorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("CPU Monitor")
             .setContentText("CPU monitoring is active")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your own icon
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
