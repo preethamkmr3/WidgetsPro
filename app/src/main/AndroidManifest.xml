@@ -6,6 +6,9 @@
     <uses-permission android:name="dev.rikka.shizuku.permission.REQUEST_API_V23" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:allowBackup="true"
@@ -25,7 +28,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".CpuMonitorService" />
+        <service
+            android:name=".CpuMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
 
         <receiver android:name=".CpuWidgetProvider"
             android:exported="true">

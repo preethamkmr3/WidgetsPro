@@ -7,9 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.IBinder
 import android.util.TypedValue
 import android.widget.RemoteViews
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import androidx.core.app.NotificationCompat
 import rikka.shizuku.Shizuku
 import java.util.LinkedList
 import android.view.View
@@ -21,19 +27,30 @@ class CpuMonitorService : Service() {
     private val dataPoints = LinkedList<Double>()
     private val MAX_DATA_POINTS = 50
 
+    private val CHANNEL_ID = "cpu_monitor_service_channel"
+    private val NOTIFICATION_ID = 1
+
     override fun onCreate() {
         super.onCreate()
 
+        // Check Shizuku permission
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            Shizuku.requestPermission(0)
+            // We cannot request permissions from a Service; stop the service and inform the user
             stopSelf()
             return
         }
 
+        // Create notification channel and start the service in the foreground
+        createNotificationChannel()
+        val notification = createNotification()
+        startForeground(NOTIFICATION_ID, notification)
+
+        // Initialize data points
         repeat(MAX_DATA_POINTS) {
             dataPoints.add(0.0)
         }
 
+        // Initialize and start cpuMonitor
         cpuMonitor = CpuMonitor { cpuUsage, cpuTemperature ->
             updateWidget(cpuUsage, cpuTemperature)
         }
@@ -65,7 +82,9 @@ class CpuMonitorService : Service() {
                 R.id.cpuTempWidgetTextView,
                 String.format("%.1f °C", cpuTemperature)
             )
-            views.setTextViewText(R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown")
+            views.setTextViewText(
+                R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown"
+            )
 
             val graphBitmap = createGraphBitmap(this, dataPoints)
             views.setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
@@ -110,4 +129,35 @@ class CpuMonitorService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "CPU Monitor Service",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(): Notification {
+        val notificationIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("CPU Monitor")
+            .setContentText("CPU monitoring is active")
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your own icon
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .build()
+    }
 }
