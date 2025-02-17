@@ -20,6 +20,8 @@ import rikka.shizuku.Shizuku
 import java.util.LinkedList
 import android.view.View
 import android.graphics.Canvas
+import android.graphics.Color
+import androidx.core.content.res.ResourcesCompat
 
 class CpuMonitorService : Service() {
 
@@ -61,6 +63,26 @@ class CpuMonitorService : Service() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, CpuWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+        val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
+        val usageText = String.format("%.0f%% ", cpuUsage)
+        val cpuText = String.format("CPU  ")
+        val displayMetrics = this.resources.displayMetrics
+        val textWidthPx = (100 * displayMetrics.density).toInt() // Adjust width as needed
+        val textHeightPx = (24 * displayMetrics.density).toInt() // Adjust height as needed
+        val usageBitmap = WidgetUtils.createTextBitmap(
+            context = this,
+            text = usageText,
+            textSizeSp = 20f,
+            textColor = Color.WHITE,
+            typeface = typeface
+        )
+        val cpuBitmap = WidgetUtils.createTextBitmap(
+            context = this,
+            text = cpuText,
+            textSizeSp = 20f,
+            textColor = Color.WHITE,
+            typeface = typeface
+        )
 
         dataPoints.addLast(cpuUsage)
         if (dataPoints.size > MAX_DATA_POINTS) {
@@ -69,13 +91,11 @@ class CpuMonitorService : Service() {
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(packageName, R.layout.widget_layout)
-            views.setTextViewText(
-                R.id.cpuUsageWidgetTextView,
-                String.format("%.1f %%", cpuUsage)
-            )
+            views.setImageViewBitmap(R.id.cpuUsageImageView, usageBitmap)
+            views.setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
             views.setTextViewText(
                 R.id.cpuTempWidgetTextView,
-                String.format("%.1f °C", cpuTemperature)
+                String.format("%.1f°C", cpuTemperature)
             )
             views.setTextViewText(
                 R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown"
