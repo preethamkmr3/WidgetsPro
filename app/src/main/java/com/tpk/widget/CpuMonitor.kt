@@ -1,5 +1,6 @@
 package com.tpk.widget
 
+import android.util.Log
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -118,6 +119,7 @@ class CpuMonitor(
                 return temp / 1000.0
             }
         } catch (e: Exception) {
+            Log.e("CpuMonitor", "Error reading temperature", e)
             e.printStackTrace()
         }
         return 0.0
@@ -125,13 +127,14 @@ class CpuMonitor(
 
     private fun findCpuThermalZone(): String? {
         val thermalZones = getThermalZones()
+        val preferredTypes = listOf("cpu", "tsens", "processor")
         for (zone in thermalZones) {
             val type = readThermalZoneType(zone)
-            if (type != null && type.contains("cpu", ignoreCase = true)) {
+            if (type != null && preferredTypes.any { type.contains(it, ignoreCase = true) }) {
                 return zone
             }
         }
-        return null
+        return thermalZones.firstOrNull()
     }
 
     private fun getThermalZones(): List<String> {

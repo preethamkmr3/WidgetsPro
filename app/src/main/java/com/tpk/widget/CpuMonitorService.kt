@@ -30,6 +30,7 @@ class CpuMonitorService : Service() {
     private val dataPoints = LinkedList<Double>()
     private val MAX_DATA_POINTS = 50
     private var useRoot = false
+    private var graphBitmap: Bitmap? = null
 
     private val CHANNEL_ID = "cpu_monitor_service_channel"
     private val NOTIFICATION_ID = 1
@@ -115,7 +116,8 @@ class CpuMonitorService : Service() {
                 R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown"
             )
 
-            val graphBitmap = createGraphBitmap(this, dataPoints)
+            graphBitmap?.recycle()
+            graphBitmap = createGraphBitmap(this, dataPoints)
             views.setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)

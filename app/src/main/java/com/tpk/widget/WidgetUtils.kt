@@ -25,8 +25,10 @@ object WidgetUtils {
         val textBounds = Rect()
         paint.getTextBounds(text, 0, text.length, textBounds)
 
-        val width = minOf(textBounds.width(), maxWidthPx)
-        val height = minOf(textBounds.height(), maxHeightPx)
+        val textWidth = paint.measureText(text)
+        val textHeight = textBounds.height().toFloat()
+        val width = minOf(textWidth.toInt(), maxWidthPx)
+        val height = minOf(textHeight.toInt(), maxHeightPx)
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)

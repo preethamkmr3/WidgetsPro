@@ -57,7 +57,7 @@ class DottedGraphView(context: Context) : View(context) {
         val fillEndY = height - fillAreaBottomOffset
 
         var currentColumnX = 0f
-        for (i in 0..dataPoints.size) {
+        for (i in 0 until dataPoints.size) {
             var currentFillY = fillStartY
             while (currentFillY < fillEndY) {
                 canvas.drawCircle(
