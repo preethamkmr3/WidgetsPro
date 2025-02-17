@@ -80,8 +80,8 @@ class CpuMonitorService : Service() {
         val componentName = ComponentName(this, CpuWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
-        val usageText = String.format("%.0f%% ", cpuUsage)
-        val cpuText = String.format("CPU  ")
+        val usageText = String.format("%.0f%%", cpuUsage)
+        val cpuText = String.format("CPU")
 
         val usageBitmap = WidgetUtils.createTextBitmap(
             context = this,
