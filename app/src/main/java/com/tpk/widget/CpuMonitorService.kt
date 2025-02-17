@@ -66,9 +66,6 @@ class CpuMonitorService : Service() {
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
         val usageText = String.format("%.0f%% ", cpuUsage)
         val cpuText = String.format("CPU  ")
-        val displayMetrics = this.resources.displayMetrics
-        val textWidthPx = (100 * displayMetrics.density).toInt() // Adjust width as needed
-        val textHeightPx = (24 * displayMetrics.density).toInt() // Adjust height as needed
         val usageBitmap = WidgetUtils.createTextBitmap(
             context = this,
             text = usageText,
