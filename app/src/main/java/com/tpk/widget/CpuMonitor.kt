@@ -1,4 +1,4 @@
-package com.tpk.widget;
+package com.tpk.widget
 
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
@@ -6,8 +6,10 @@ import java.io.InputStreamReader
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import java.io.IOException
 
 class CpuMonitor(
+    private val useRoot: Boolean,
     private val callback: (cpuUsage: Double, cpuTemperature: Double) -> Unit
 ) {
 
@@ -77,9 +79,23 @@ class CpuMonitor(
         return 0.0
     }
 
+    private fun executeCommand(command: Array<String>): Process? {
+        return try {
+            if (useRoot) {
+                Runtime.getRuntime().exec(arrayOf("su", "-c", command.joinToString(" ")))
+            } else {
+                Shizuku.newProcess(command, null, null)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     private fun readProcStat(): String? {
         return try {
-            val process = Shizuku.newProcess(arrayOf("cat", "/proc/stat"), null, null)
+            val command = arrayOf("cat", "/proc/stat")
+            val process = executeCommand(command) ?: return null
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = reader.readText()
             reader.close()
@@ -121,9 +137,7 @@ class CpuMonitor(
     private fun getThermalZones(): List<String> {
         val zones = mutableListOf<String>()
         try {
-            val process = Shizuku.newProcess(
-                arrayOf("ls", "/sys/class/thermal/"),
-                null, null)
+            val process = executeCommand(arrayOf("ls", "/sys/class/thermal/")) ?: return emptyList()
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = reader.readText()
             reader.close()
@@ -143,7 +157,7 @@ class CpuMonitor(
     private fun readThermalZoneType(zone: String): String? {
         try {
             val path = "/sys/class/thermal/$zone/type"
-            val process = Shizuku.newProcess(arrayOf("cat", path), null, null)
+            val process = executeCommand(arrayOf("cat", path)) ?: return null
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             val type = reader.readLine()
             reader.close()
@@ -158,7 +172,7 @@ class CpuMonitor(
     private fun readThermalZoneTemp(zone: String): Double? {
         try {
             val path = "/sys/class/thermal/$zone/temp"
-            val process = Shizuku.newProcess(arrayOf("cat", path), null, null)
+            val process = executeCommand(arrayOf("cat", path)) ?: return null
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             val tempStr = reader.readLine()
             reader.close()

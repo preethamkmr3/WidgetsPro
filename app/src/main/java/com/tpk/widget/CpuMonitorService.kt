@@ -21,6 +21,7 @@ import java.util.LinkedList
 import android.view.View
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 
 class CpuMonitorService : Service() {
@@ -28,18 +29,30 @@ class CpuMonitorService : Service() {
     private lateinit var cpuMonitor: CpuMonitor
     private val dataPoints = LinkedList<Double>()
     private val MAX_DATA_POINTS = 50
+    private var useRoot = false
 
     private val CHANNEL_ID = "cpu_monitor_service_channel"
     private val NOTIFICATION_ID = 1
 
-    override fun onCreate() {
-        super.onCreate()
-
-        if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            stopSelf()
-            return
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.let {
+            useRoot = it.getBooleanExtra("use_root", false)
         }
 
+        if (!useRoot && Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (!::cpuMonitor.isInitialized) {
+            initializeMonitoring()
+        }
+
+        return START_STICKY
+    }
+
+    override fun onCreate() {
+        super.onCreate()
         createNotificationChannel()
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -47,8 +60,10 @@ class CpuMonitorService : Service() {
         repeat(MAX_DATA_POINTS) {
             dataPoints.add(0.0)
         }
+    }
 
-        cpuMonitor = CpuMonitor { cpuUsage, cpuTemperature ->
+    private fun initializeMonitoring() {
+        cpuMonitor = CpuMonitor(useRoot) { cpuUsage, cpuTemperature ->
             updateWidget(cpuUsage, cpuTemperature)
         }
         cpuMonitor.startMonitoring()
@@ -66,18 +81,20 @@ class CpuMonitorService : Service() {
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
         val usageText = String.format("%.0f%% ", cpuUsage)
         val cpuText = String.format("CPU  ")
+
         val usageBitmap = WidgetUtils.createTextBitmap(
             context = this,
             text = usageText,
             textSizeSp = 20f,
-            textColor = Color.WHITE,
+            textColor = Color.RED,
             typeface = typeface
         )
+
         val cpuBitmap = WidgetUtils.createTextBitmap(
             context = this,
             text = cpuText,
             textSizeSp = 20f,
-            textColor = Color.WHITE,
+            textColor = Color.RED,
             typeface = typeface
         )
 

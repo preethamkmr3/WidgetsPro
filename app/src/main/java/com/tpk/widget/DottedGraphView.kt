@@ -13,7 +13,7 @@ class DottedGraphView(context: Context) : View(context) {
     private var dataPoints: List<Double> = emptyList()
 
     private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
+        color = Color.RED
         strokeWidth = 1.5f
         strokeCap = Paint.Cap.ROUND
         style = Paint.Style.FILL
@@ -26,7 +26,7 @@ class DottedGraphView(context: Context) : View(context) {
         style = Paint.Style.FILL
     }
 
-    private val dotSpacing = 8f
+    private val dotSpacing = 10f
     private var greyDotSpacingHorizontal = 0f
     private val greyDotSpacingVertical = 10f
     private val fillAreaTopOffset = 5f

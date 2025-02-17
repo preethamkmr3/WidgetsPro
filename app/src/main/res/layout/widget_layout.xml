@@ -8,7 +8,7 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/system_neutral1_900"
+        style="@style/CustomBackground"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="18dp">
@@ -46,8 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:gravity="start"
-                android:text="SD 778G+"
-                android:textColor="@android:color/white"
+                style="@style/CustomTextView"
                 android:textSize="10sp" />
 
             <TextView
@@ -56,8 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:gravity="end"
-                android:text="47° C"
-                android:textColor="@android:color/white"
+                style="@style/CustomTextView"
                 android:textSize="10sp" />
         </LinearLayout>
 
