@@ -1,11 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Widget" parent="Theme.Material3.Dark">
+
+    <style name="Theme.Widget" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@android:color/system_neutral1_900</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
+
     <style name="CustomBackground">
         <item name="android:background">@android:color/system_neutral1_900</item>
     </style>
+
     <style name="CustomTextView">
         <item name="android:textColor">#ffffffff</item>
     </style>

@@ -1,61 +1,60 @@
 package com.tpk.widget
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import rikka.shizuku.Shizuku
-import java.io.File
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
-    private val SHIZUKU_REQUEST_CODE = 123
+    private val SHIZUKU_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        NotificationUtils.createAppWidgetChannel(this)
 
-        if (isDeviceRooted() && testRootAccess()) {
-            startCpuMonitorService(true)
-        } else {
-            handleShizukuPermission()
+        setupUI()
+        //checkPermissions()
+    }
+
+    private fun setupUI() {
+        findViewById<Button>(R.id.btn_retry).setOnClickListener {
+            checkPermissions()
         }
     }
 
-    private fun isDeviceRooted(): Boolean {
-        val paths = arrayOf(
-            "/system/bin/su",
-            "/system/xbin/su",
-            "/sbin/su",
-            "/su/bin/su",
-            "/data/local/xbin/su",
-            "/data/local/bin/su",
-            "/system/sd/xbin/su",
-            "/system/bin/failsafe/su",
-            "/data/local/su"
+    private fun checkPermissions() {
+        when {
+            hasRootAccess() -> startServiceAndFinish(true)
+            hasShizukuAccess() -> startServiceAndFinish(false)
+            else -> showPermissionDialog()
+        }
+    }
+
+    private fun startServiceAndFinish(useRoot: Boolean) {
+        ContextCompat.startForegroundService(
+            this,
+            Intent(this, CpuMonitorService::class.java).apply {
+                putExtra("use_root", useRoot)
+            }
         )
-        return paths.any { File(it).exists() }
+        finish()
     }
 
-    private fun testRootAccess(): Boolean {
-        return try {
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "echo test"))
-            val output = process.inputStream.bufferedReader().readText().trim()
-            process.waitFor()
-            output == "test"
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun handleShizukuPermission() {
-        if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
-        } else {
-            startCpuMonitorService(false)
-        }
+    private fun showPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Required")
+            .setMessage("Please grant root or Shizuku permissions to continue")
+            .setPositiveButton("Retry") { _, _ -> checkPermissions() }
+            .setNegativeButton("Cancel") { _, _ -> finish() }
+            .show()
     }
 
     override fun onRequestPermissionsResult(
@@ -63,21 +62,32 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == SHIZUKU_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startCpuMonitorService(false)
+                startServiceAndFinish(false)
             } else {
-                // Handle Shizuku permission denial
+                Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_LONG).show()
             }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun startCpuMonitorService(useRoot: Boolean) {
-        val intent = Intent(this, CpuMonitorService::class.java).apply {
-            putExtra("use_root", useRoot)
+    companion object {
+        fun hasRequiredPermissions(context: Context): Boolean {
+            return hasRootAccess() || hasShizukuAccess()
         }
-        ContextCompat.startForegroundService(this, intent)
+
+        fun hasRootAccess(): Boolean {
+            return try {
+                Runtime.getRuntime().exec("su -c exit").waitFor() == 0
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        fun hasShizukuAccess(): Boolean {
+            return Shizuku.pingBinder() &&
+                    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        }
     }
 }

@@ -3,7 +3,7 @@
     android:updatePeriodMillis="0"
     android:targetCellHeight="2"
     android:targetCellWidth="2"
-    android:description="@string/widget_cpu_name"
-    android:previewLayout="@layout/cpu_widget_layout"
-    android:initialLayout="@layout/cpu_widget_layout"
+    android:description="@string/widget_battery_name"
+    android:previewLayout="@layout/battery_widget_layout"
+    android:initialLayout="@layout/battery_widget_layout"
     android:widgetCategory="home_screen" />

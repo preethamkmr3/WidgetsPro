@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Widget</string>
+    <string name="widget_cpu_name">CPU Widget</string>
+    <string name="widget_battery_name">Battery Widget</string>
+    <string name="cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it">CPU widget needs special permissions to access data so grant Shizuku/SU access to use it.</string>
+    <string name="grant_permissions">Grant Permissions</string>
 </resources>
