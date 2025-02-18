@@ -1,5 +1,5 @@
 Initial build with CPU widget.
-Made this to fit my current design language.
+Made this to fit my current phone's design language.
 Used AI to fix/update few stuff.
 
 Instructions -
