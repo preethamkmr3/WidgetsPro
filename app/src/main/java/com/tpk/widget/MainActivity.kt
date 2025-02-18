@@ -1,5 +1,8 @@
 package com.tpk.widget
 
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,12 +24,36 @@ class MainActivity : AppCompatActivity() {
         NotificationUtils.createAppWidgetChannel(this)
 
         setupUI()
-        //checkPermissions()
     }
 
     private fun setupUI() {
         findViewById<Button>(R.id.btn_retry).setOnClickListener {
             checkPermissions()
+        }
+        findViewById<Button>(R.id.button1).setOnClickListener {
+            val cpuWidgetProvider = ComponentName(this, CpuWidgetProvider::class.java)
+            requestWidgetInstallation(cpuWidgetProvider)
+        }
+    }
+
+    private fun requestWidgetInstallation(provider: ComponentName) {
+        try {
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+
+            if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                val successCallback = PendingIntent.getBroadcast(
+                    this,
+                    0,
+                    Intent(this, CpuWidgetProvider::class.java),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+
+                appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+            } else {
+                Toast.makeText(this, "Widget pinning not supported", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to add widget: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -73,9 +100,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        fun hasRequiredPermissions(context: Context): Boolean {
-            return hasRootAccess() || hasShizukuAccess()
-        }
 
         fun hasRootAccess(): Boolean {
             return try {
