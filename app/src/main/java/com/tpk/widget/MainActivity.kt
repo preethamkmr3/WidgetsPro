@@ -22,17 +22,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         NotificationUtils.createAppWidgetChannel(this)
-
         setupUI()
     }
 
     private fun setupUI() {
-        findViewById<Button>(R.id.btn_retry).setOnClickListener {
-            checkPermissions()
-        }
         findViewById<Button>(R.id.button1).setOnClickListener {
-            val cpuWidgetProvider = ComponentName(this, CpuWidgetProvider::class.java)
-            requestWidgetInstallation(cpuWidgetProvider)
+            checkPermissions()
+            if (hasShizukuAccess()) {
+                val cpuWidgetProvider = ComponentName(this, CpuWidgetProvider::class.java)
+                requestWidgetInstallation(cpuWidgetProvider)
+            }
+        }
+        findViewById<Button>(R.id.button2).setOnClickListener {
+            val batteryWidgetProvider = ComponentName(this, BatteryWidgetProvider::class.java)
+            requestWidgetInstallation(batteryWidgetProvider)
         }
     }
 
@@ -41,10 +44,11 @@ class MainActivity : AppCompatActivity() {
             val appWidgetManager = AppWidgetManager.getInstance(this)
 
             if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                val requestCode = System.currentTimeMillis().toInt()
                 val successCallback = PendingIntent.getBroadcast(
                     this,
-                    0,
-                    Intent(this, CpuWidgetProvider::class.java),
+                    requestCode,
+                    Intent(this, ComponentName::class.java),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
@@ -60,7 +64,14 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         when {
             hasRootAccess() -> startServiceAndFinish(true)
-            hasShizukuAccess() -> startServiceAndFinish(false)
+            Shizuku.pingBinder() -> {
+                if (hasShizukuAccess()) {
+                    startServiceAndFinish(false)
+                } else {
+                    Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
+                }
+            }
+
             else -> showPermissionDialog()
         }
     }

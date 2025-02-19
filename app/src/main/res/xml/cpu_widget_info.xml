@@ -4,6 +4,6 @@
     android:targetCellHeight="2"
     android:targetCellWidth="2"
     android:description="@string/widget_cpu_name"
-    android:previewLayout="@layout/cpu_widget_layout"
+    android:previewLayout="@layout/widget_preview_cpu"
     android:initialLayout="@layout/cpu_widget_layout"
     android:widgetCategory="home_screen" />

@@ -2,7 +2,7 @@
     android:id="@+id/widgetRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?attr/colorOnSurfaceInverse"
     android:paddingTop="50dp">
 
     <RelativeLayout
@@ -54,7 +54,7 @@
                     android:id="@+id/imageView2"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    android:src="@drawable/cpu_widget_preview" />
+                    android:src="@drawable/bat_widget_preview"/>
 
                 <Button
                     android:id="@+id/button2"
@@ -71,20 +71,11 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btn_retry"
-            android:layout_marginBottom="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="15dp"
             android:gravity="center"
             android:text="@string/cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it" />
 
-        <Button
-            android:id="@+id/btn_retry"
-            style="@style/CustomTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/grant_permissions" />
 
     </RelativeLayout>
 </RelativeLayout>

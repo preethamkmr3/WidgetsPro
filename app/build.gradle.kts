@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.tpk.widget"
-        minSdk = 33
+        minSdk = 34
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.2"

@@ -99,13 +99,8 @@ class CpuMonitorService : Service() {
             val views = RemoteViews(packageName, R.layout.cpu_widget_layout)
             views.setImageViewBitmap(R.id.cpuUsageImageView, usageBitmap)
             views.setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
-            views.setTextViewText(
-                R.id.cpuTempWidgetTextView,
-                String.format("%.1f°C", cpuTemperature)
-            )
-            views.setTextViewText(
-                R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown"
-            )
+            views.setTextViewText(R.id.cpuTempWidgetTextView, String.format("%.1f°C", cpuTemperature))
+            views.setTextViewText(R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown")
 
             val graphBitmap = createGraphBitmap(this, dataPoints)
             views.setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
@@ -133,7 +128,7 @@ class CpuMonitorService : Service() {
             .build()
     }
 
-    private fun getDeviceProcessorModel(): String? {
+    private fun getDeviceProcessorModel(): String {
         return when (android.os.Build.SOC_MODEL) {
             "SM8475" -> "8+ Gen 1"
             else -> android.os.Build.SOC_MODEL
