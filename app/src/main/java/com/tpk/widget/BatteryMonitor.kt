@@ -15,26 +15,30 @@ class BatteryMonitor(
     private val executorService: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor()
 
+    // Start monitoring with a 60-second interval to save battery
     fun startMonitoring() {
         executorService.scheduleAtFixedRate({
-            val percentage = batteryPercentage()
-            val health = batteryCycleCount()
-            callback(percentage, health)
-        }, 0, 1, TimeUnit.SECONDS)
+            try {
+                val percentage = getBatteryPercentage()
+                val health = getBatteryCycleCount()
+                callback(percentage, health)
+            } catch (e: Exception) {
+                // Log error or notify user if needed
+            }
+        }, 0, 60, TimeUnit.SECONDS)
     }
 
-    private fun batteryPercentage(): Int {
-        val bm = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+    private fun getBatteryPercentage(): Int {
+        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager?
+        return batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
     }
 
-    private fun batteryCycleCount(): Int {
+    private fun getBatteryCycleCount(): Int {
         val batteryStatus = context.registerReceiver(
             null,
             IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         )
-        val cycleCount = batteryStatus?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
-        return cycleCount
+        return batteryStatus?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
     }
 
     fun stopMonitoring() {

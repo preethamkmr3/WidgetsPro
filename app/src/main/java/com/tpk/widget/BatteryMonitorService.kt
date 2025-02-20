@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 
 class BatteryMonitorService : Service() {
-
     private lateinit var batteryMonitor: BatteryMonitor
     private val NOTIFICATION_ID = 2
 
@@ -46,8 +45,8 @@ class BatteryMonitorService : Service() {
         val componentName = ComponentName(this, BatteryWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
-        val percentageText = "%d%%".format(percentage)
-        val batteryText = String.format("BAT")
+        val percentageText = "$percentage%"
+        val batteryText = "BAT"
 
         val percentageBitmap = WidgetUtils.createTextBitmap(
             context = this,
@@ -73,6 +72,8 @@ class BatteryMonitorService : Service() {
             views.setImageViewBitmap(R.id.batteryPercentageImageView, percentageBitmap)
             views.setTextViewText(R.id.batteryModelWidgetTextView, health.toString())
             views.setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
+            // Placeholder during data fetch
+            if (percentage == 0) views.setTextViewText(R.id.batteryPercentageImageView, "Loading...")
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
@@ -81,39 +82,32 @@ class BatteryMonitorService : Service() {
         val graphView = BatteryDottedView(context)
         graphView.updatePercentage(percentage)
 
-        val desiredWidthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            200f,
-            context.resources.displayMetrics
+        val widthPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 200f, context.resources.displayMetrics
         ).toInt()
 
-        val desiredHeightPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            80f,
-            context.resources.displayMetrics
+        val heightPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 80f, context.resources.displayMetrics
         ).toInt()
 
         graphView.measure(
-            View.MeasureSpec.makeMeasureSpec(desiredWidthPx, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(desiredHeightPx, View.MeasureSpec.EXACTLY)
+            View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY)
         )
-        graphView.layout(0, 0, desiredWidthPx, desiredHeightPx)
+        graphView.layout(0, 0, widthPx, heightPx)
 
-        return Bitmap.createBitmap(desiredWidthPx, desiredHeightPx, Bitmap.Config.ARGB_8888).apply {
-            val canvas = Canvas(this)
-            graphView.draw(canvas)
-        }
+        val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        graphView.draw(canvas)
+        return bitmap
     }
 
-
     private fun createNotification(): Notification {
-        val notificationIntent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         return NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID)

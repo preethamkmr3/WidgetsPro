@@ -21,37 +21,28 @@ import rikka.shizuku.Shizuku
 import java.util.LinkedList
 
 class CpuMonitorService : Service() {
-
     private lateinit var cpuMonitor: CpuMonitor
     private val dataPoints = LinkedList<Double>()
     private val MAX_DATA_POINTS = 50
     private var useRoot = false
-
     private val NOTIFICATION_ID = 1
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.let {
-            useRoot = it.getBooleanExtra("use_root", false)
-        }
+        intent?.let { useRoot = it.getBooleanExtra("use_root", false) }
 
         if (!useRoot && Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             stopSelf()
             return START_NOT_STICKY
         }
 
-        if (!::cpuMonitor.isInitialized) {
-            initializeMonitoring()
-        }
-
+        if (!::cpuMonitor.isInitialized) initializeMonitoring()
         return START_STICKY
     }
 
     override fun onCreate() {
         super.onCreate()
         startForeground(NOTIFICATION_ID, createNotification())
-        repeat(MAX_DATA_POINTS) {
-            dataPoints.add(0.0)
-        }
+        repeat(MAX_DATA_POINTS) { dataPoints.add(0.0) }
     }
 
     private fun initializeMonitoring() {
@@ -61,18 +52,13 @@ class CpuMonitorService : Service() {
         cpuMonitor.startMonitoring()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        cpuMonitor.stopMonitoring()
-    }
-
     private fun updateWidget(cpuUsage: Double, cpuTemperature: Double) {
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, CpuWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
-        val usageText = String.format("%.0f%%", cpuUsage)
-        val cpuText = String.format("CPU")
+        val usageText = "%.0f%%".format(cpuUsage)
+        val cpuText = "CPU"
 
         val usageBitmap = WidgetUtils.createTextBitmap(
             context = this,
@@ -91,32 +77,25 @@ class CpuMonitorService : Service() {
         )
 
         dataPoints.addLast(cpuUsage)
-        if (dataPoints.size > MAX_DATA_POINTS) {
-            dataPoints.removeFirst()
-        }
+        if (dataPoints.size > MAX_DATA_POINTS) dataPoints.removeFirst()
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(packageName, R.layout.cpu_widget_layout)
             views.setImageViewBitmap(R.id.cpuUsageImageView, usageBitmap)
             views.setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
-            views.setTextViewText(R.id.cpuTempWidgetTextView, String.format("%.1f°C", cpuTemperature))
+            views.setTextViewText(R.id.cpuTempWidgetTextView, "%.1f°C".format(cpuTemperature))
             views.setTextViewText(R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown")
-
-            val graphBitmap = createGraphBitmap(this, dataPoints)
-            views.setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
-
+            views.setImageViewBitmap(R.id.graphWidgetImageView, createGraphBitmap(this, dataPoints))
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
 
     private fun createNotification(): Notification {
-        val notificationIntent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         return NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID)
@@ -139,28 +118,29 @@ class CpuMonitorService : Service() {
         val graphView = DottedGraphView(context)
         graphView.setDataPoints(dataPoints)
 
-        val desiredWidthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            200f,
-            context.resources.displayMetrics
+        val widthPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 200f, context.resources.displayMetrics
         ).toInt()
 
-        val desiredHeightPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            80f,
-            context.resources.displayMetrics
+        val heightPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, 80f, context.resources.displayMetrics
         ).toInt()
 
         graphView.measure(
-            View.MeasureSpec.makeMeasureSpec(desiredWidthPx, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(desiredHeightPx, View.MeasureSpec.EXACTLY)
+            View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY)
         )
-        graphView.layout(0, 0, desiredWidthPx, desiredHeightPx)
+        graphView.layout(0, 0, widthPx, heightPx)
 
-        val bitmap = Bitmap.createBitmap(desiredWidthPx, desiredHeightPx, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         graphView.draw(canvas)
         return bitmap
+    }
+
+    override fun onDestroy() {
+        cpuMonitor.stopMonitoring()
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
