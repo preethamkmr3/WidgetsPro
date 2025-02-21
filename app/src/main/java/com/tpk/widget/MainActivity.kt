@@ -12,9 +12,10 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.tpk.widget.PermissionUtils.hasRootAccess
+import com.tpk.widget.PermissionUtils.hasShizukuAccess
 import rikka.shizuku.Shizuku
-import java.io.BufferedReader
-import java.io.InputStreamReader
+
 
 class MainActivity : AppCompatActivity() {
     private val SHIZUKU_REQUEST_CODE = 1001
@@ -41,6 +42,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.imageViewButton).setOnClickListener {
             checkPermissions()
             Toast.makeText(this, "Widget refreshed", Toast.LENGTH_SHORT).show()
+        }
+        findViewById<Button>(R.id.button3).setOnClickListener {
+            val batteryWidgetProvider = ComponentName(this, CaffeineWidget::class.java)
+            requestWidgetInstallation(batteryWidgetProvider)
         }
     }
 
@@ -98,23 +103,6 @@ class MainActivity : AppCompatActivity() {
             startServiceAndFinish(false)
         } else {
             Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    companion object {
-        fun hasRootAccess(): Boolean {
-            return try {
-                val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "cat /proc/version"))
-                val output = BufferedReader(InputStreamReader(process.inputStream)).use { it.readLine() }
-                process.destroy()
-                output != null
-            } catch (e: Exception) {
-                false
-            }
-        }
-
-        fun hasShizukuAccess(): Boolean {
-            return Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
         }
     }
 }

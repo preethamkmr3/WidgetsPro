@@ -15,4 +15,11 @@
     <string name="widget_pin_failed">Failed to pin widget</string>
     <string name="widget_pin_unsupported">Widget pinning not supported</string>
     <string name="add">Add</string>
+    <string name="widget_caffeine_name">Caffeine Widget</string>
+    <string name="caffeine_toggle_desc">Toggle Screen Wake Lock</string>
+    <string name="notification_title">Keeping screen awake</string>
+    <string name="channel_name">Caffeine Notifications</string>
+    <string name="channel_description">Notifications for screen wake lock status</string>
+    <string name="cycle_count">Cycle count</string>
+    <string name="_69">69</string>
 </resources>

@@ -44,7 +44,7 @@
                 android:id="@+id/batteryTextModelWidgetTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Cycle count"
+                android:text="@string/cycle_count"
                 android:layout_weight="0.5"
                 android:gravity="start"
                 style="@style/CustomTextView"
@@ -55,7 +55,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:text="69"
+                android:text="@string/_69"
                 android:gravity="end"
                 style="@style/CustomTextView"
                 android:textSize="10sp" />

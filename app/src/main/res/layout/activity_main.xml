@@ -2,7 +2,7 @@
     android:id="@+id/widgetRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorOnSurfaceInverse"
+    android:background="?attr/colorSurface"
     android:paddingTop="70dp">
 
     <RelativeLayout
@@ -53,12 +53,12 @@
 
                     <ImageView
                         android:id="@+id/imageViewButton"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginLeft="5dp"
-                        android:layout_gravity="center"
+                        style="@style/CustomTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/CustomTextView"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
                         android:src="@drawable/ic_refresh" />
 
                 </LinearLayout>
@@ -88,15 +88,46 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/imageRow1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/imageRow"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
-            android:text="@string/cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it" />
+            android:orientation="horizontal">
 
-    </RelativeLayout>
-</RelativeLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_coffee_active"/>
+
+                <Button
+                    android:id="@+id/button3"
+                    style="@style/CustomTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/add" />
+            </LinearLayout>
+        </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:gravity="center"
+        android:text="@string/cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it" />
+
+</RelativeLayout></RelativeLayout>

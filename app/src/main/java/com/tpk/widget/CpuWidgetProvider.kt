@@ -6,11 +6,11 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.widget.RemoteViews
 import androidx.core.content.res.ResourcesCompat
-import rikka.shizuku.Shizuku
+import com.tpk.widget.PermissionUtils.hasRootAccess
+import com.tpk.widget.PermissionUtils.hasShizukuAccess
 
 class CpuWidgetProvider : AppWidgetProvider() {
     override fun onEnabled(context: Context) {
@@ -52,7 +52,7 @@ class CpuWidgetProvider : AppWidgetProvider() {
                 setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
                 setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
                 setTextViewText(R.id.cpuTempWidgetTextView, "--°C")
-                setTextViewText(R.id.cpuModelWidgetTextView, "Setup Required. Tap to setup")
+                setTextViewText(R.id.cpuModelWidgetTextView, "Tap to setup")
 
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -65,26 +65,5 @@ class CpuWidgetProvider : AppWidgetProvider() {
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
         graphBitmap.recycle()
-    }
-
-    companion object {
-        fun hasRootAccess(): Boolean {
-            return try {
-                val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "cat /proc/version"))
-                val output = process.inputStream.bufferedReader().use { it.readLine() }
-                process.destroy()
-                output != null
-            } catch (e: Exception) {
-                false
-            }
-        }
-
-        fun hasShizukuAccess(): Boolean {
-            return try {
-                Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
-            } catch (e: Exception) {
-                false
-            }
-        }
     }
 }
