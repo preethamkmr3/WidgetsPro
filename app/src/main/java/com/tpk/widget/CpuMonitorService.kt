@@ -15,6 +15,7 @@ import android.os.IBinder
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import rikka.shizuku.Shizuku
@@ -30,9 +31,13 @@ class CpuMonitorService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let { useRoot = it.getBooleanExtra("use_root", false) }
 
-        if (!useRoot && Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            stopSelf()
-            return START_NOT_STICKY
+        if (!useRoot) {
+            if (!Shizuku.pingBinder()) {
+                return START_NOT_STICKY
+            }
+            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                return START_NOT_STICKY
+            }
         }
 
         if (!::cpuMonitor.isInitialized) initializeMonitoring()
