@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupUI() {
         findViewById<Button>(R.id.button1).setOnClickListener {
             checkPermissions()
-            if (hasShizukuAccess()) {
+            if (hasShizukuAccess()||hasRootAccess()) {
                 val cpuWidgetProvider = ComponentName(this, CpuWidgetProvider::class.java)
                 requestWidgetInstallation(cpuWidgetProvider)
             }
@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
             this,
             Intent(this, CpuMonitorService::class.java).apply { putExtra("use_root", useRoot) }
         )
-        finish()
     }
 
     private fun showPermissionDialog() {
