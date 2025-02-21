@@ -106,9 +106,9 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_coffee_active"/>
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/caffeine_widget_preview"/>
 
                 <Button
                     android:id="@+id/button3"

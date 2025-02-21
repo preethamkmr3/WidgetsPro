@@ -2,6 +2,6 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:src="@drawable/ic_coffee_active"
+    android:src="@drawable/caffeine_widget_preview"
     android:scaleType="centerCrop"
     android:contentDescription="Widget preview"/>
