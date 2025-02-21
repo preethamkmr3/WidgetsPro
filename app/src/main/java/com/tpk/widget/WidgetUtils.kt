@@ -1,38 +1,43 @@
 package com.tpk.widget
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.util.TypedValue
 
 object WidgetUtils {
+
     fun createTextBitmap(
         context: Context,
         text: String,
         textSizeSp: Float,
         textColor: Int,
-        typeface: Typeface
+        typeface: Typeface,
+        maxWidthPx: Int = Int.MAX_VALUE,
+        maxHeightPx: Int = Int.MAX_VALUE
     ): Bitmap {
-        val paint = Paint().apply {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSizeSp, context.resources.displayMetrics)
+            this.color = textColor
             this.typeface = typeface
-            color = textColor
-            textSize = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP,
-                textSizeSp,
-                context.resources.displayMetrics
-            )
-            isAntiAlias = true
+            this.textAlign = Paint.Align.LEFT
         }
 
-        val baseline = -paint.ascent()
-        val width = (paint.measureText(text) + 0.5f).toInt()
-        val height = (baseline + paint.descent() + 0.5f).toInt()
+        val textBounds = Rect()
+        paint.getTextBounds(text, 0, text.length, textBounds)
+
+        val textWidth = paint.measureText(text)
+        val textHeight = textBounds.height().toFloat()
+        val width = minOf(textWidth.toInt(), maxWidthPx)
+        val height = minOf(textHeight.toInt(), maxHeightPx)
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawText(text, 0f, baseline, paint)
+
+        val x = 0f
+        val y = height.toFloat() - textBounds.bottom
+
+        canvas.drawText(text, x, y, paint)
+
         return bitmap
     }
 }
