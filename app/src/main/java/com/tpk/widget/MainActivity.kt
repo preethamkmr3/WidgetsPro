@@ -42,13 +42,21 @@ class MainActivity : AppCompatActivity() {
     private fun requestWidgetInstallation(provider: ComponentName) {
         try {
             val appWidgetManager = AppWidgetManager.getInstance(this)
-            if (appWidgetManager.isRequestPinAppWidgetSupported) {
+            if (appWidgetManager.isRequestPinAppWidgetSupported()) {
                 val requestCode = System.currentTimeMillis().toInt()
+                val intent = Intent()
+                intent.setComponent(provider)
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                 val successCallback = PendingIntent.getBroadcast(
-                    this, requestCode, Intent(this, ComponentName::class.java),
+                    this,
+                    requestCode,
+                    intent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+                val pinned = appWidgetManager.requestPinAppWidget(provider,null, successCallback)
+                if (!pinned) {
+                    Toast.makeText(this, "Failed to pin widget", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Widget pinning not supported", Toast.LENGTH_SHORT).show()
             }
