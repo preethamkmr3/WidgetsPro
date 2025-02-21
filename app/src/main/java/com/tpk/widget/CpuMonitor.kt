@@ -1,12 +1,11 @@
 package com.tpk.widget
 
-import android.util.Log
+import android.content.Context
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 class CpuMonitor(
@@ -17,18 +16,14 @@ class CpuMonitor(
     private var prevNonIdleTime: Long = 0
     private var prevTotalTime: Long = 0
     private var isFirstReading = true
-    private val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private val executorService = Executors.newSingleThreadScheduledExecutor()
     private var cpuThermalZone: String? = null
 
     fun startMonitoring() {
         executorService.scheduleAtFixedRate({
-            try {
-                val cpuUsage = calculateCpuUsage()
-                val cpuTemperature = readCpuTemperature()
-                callback(cpuUsage, cpuTemperature)
-            } catch (e: Exception) {
-                Log.e("CpuMonitor", "Monitoring error: ${e.message}")
-            }
+            val cpuUsage = calculateCpuUsage()
+            val cpuTemperature = readCpuTemperature()
+            callback(cpuUsage, cpuTemperature)
         }, 0, 1, TimeUnit.SECONDS)
     }
 
@@ -42,8 +37,8 @@ class CpuMonitor(
         val tokens = cpuLine.split("\\s+".toRegex()).drop(1).mapNotNull { it.toLongOrNull() }
 
         if (tokens.size >= 10) {
-            val idleTime = tokens[3] + tokens[4] // idle + iowait
-            val nonIdleTime = tokens[0] + tokens[1] + tokens[2] + tokens[5] + tokens[6] + tokens[7] // user + nice + system + irq + softirq + steal
+            val idleTime = tokens[3] + tokens[4]
+            val nonIdleTime = tokens[0] + tokens[1] + tokens[2] + tokens[5] + tokens[6] + tokens[7]
             val totalTime = idleTime + nonIdleTime
 
             if (isFirstReading) {
@@ -71,7 +66,6 @@ class CpuMonitor(
             if (useRoot) Runtime.getRuntime().exec(arrayOf("su", "-c", command.joinToString(" ")))
             else Shizuku.newProcess(command, null, null)
         } catch (e: IOException) {
-            Log.e("CpuMonitor", "Command execution failed: ${e.message}")
             null
         }
     }

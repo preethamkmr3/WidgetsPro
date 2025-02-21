@@ -14,10 +14,7 @@ object NotificationUtils {
                 CHANNEL_ID,
                 "Widget Monitor",
                 NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "System resource monitoring"
-            }
-
+            ).apply { description = "System resource monitoring" }
             val manager = context.getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(channel)
         }

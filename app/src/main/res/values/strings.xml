@@ -4,4 +4,15 @@
     <string name="widget_battery_name">Battery Widget</string>
     <string name="cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it">CPU widget needs special permissions to access data so grant Shizuku/SU access to use it.</string>
     <string name="grant_permissions">Grant Permissions</string>
+    <string name="loading">Loading...</string>
+    <string name="cpu_monitor_title">CPU Monitor</string>
+    <string name="cpu_monitor_text">CPU monitoring is active</string>
+    <string name="permission_required_title">Permission Required</string>
+    <string name="permission_required_message">This app requires root or Shizuku permissions to monitor CPU and battery. Please grant one to continue.</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="shizuku_denied">Shizuku permission denied</string>
+    <string name="widget_pin_failed">Failed to pin widget</string>
+    <string name="widget_pin_unsupported">Widget pinning not supported</string>
+    <string name="add">Add</string>
 </resources>

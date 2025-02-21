@@ -3,29 +3,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorOnSurfaceInverse"
-    android:paddingTop="50dp">
+    android:paddingTop="70dp">
 
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:padding="20dp">
 
         <LinearLayout
             android:id="@+id/imageRow"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
+            <!-- First Column -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <!-- Horizontal layout for imageView1 and imageViewButton -->
+
 
                 <ImageView
                     android:id="@+id/imageView1"
@@ -33,36 +38,52 @@
                     android:layout_height="150dp"
                     android:src="@drawable/cpu_widget_preview" />
 
-                <Button
-                    android:id="@+id/button1"
-                    style="@style/CustomTextView"
-                    android:layout_marginTop="10dp"
 
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Add"/>
-            </LinearLayout>
+                    android:layout_height="wrap_content">
 
+                    <Button
+                        android:id="@+id/button1"
+                        style="@style/CustomTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/add" />
+
+                    <ImageView
+                        android:id="@+id/imageViewButton"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/CustomTextView"
+                        android:src="@drawable/ic_refresh" />
+
+                </LinearLayout>
+            </LinearLayout>
+            <!-- Second Column -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:layout_marginStart="10dp">
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imageView2"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    android:src="@drawable/bat_widget_preview"/>
+                    android:src="@drawable/bat_widget_preview" />
 
                 <Button
                     android:id="@+id/button2"
                     style="@style/CustomTextView"
-                    android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add"/>
+                    android:layout_marginTop="10dp"
+                    android:text="@string/add" />
             </LinearLayout>
 
         </LinearLayout>
@@ -72,10 +93,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"
             android:gravity="center"
             android:text="@string/cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it" />
-
 
     </RelativeLayout>
 </RelativeLayout>

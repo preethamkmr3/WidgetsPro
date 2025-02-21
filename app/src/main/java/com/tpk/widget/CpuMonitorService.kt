@@ -9,13 +9,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.os.IBinder
-import android.util.TypedValue
-import android.view.View
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import rikka.shizuku.Shizuku
@@ -27,15 +23,13 @@ class CpuMonitorService : Service() {
     private val MAX_DATA_POINTS = 50
     private var useRoot = false
     private val NOTIFICATION_ID = 1
+    private var cpuBitmap: Bitmap? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let { useRoot = it.getBooleanExtra("use_root", false) }
 
         if (!useRoot) {
-            if (!Shizuku.pingBinder()) {
-                return START_NOT_STICKY
-            }
-            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+            if (!Shizuku.pingBinder() || Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
                 return START_NOT_STICKY
             }
         }
@@ -48,6 +42,8 @@ class CpuMonitorService : Service() {
         super.onCreate()
         startForeground(NOTIFICATION_ID, createNotification())
         repeat(MAX_DATA_POINTS) { dataPoints.add(0.0) }
+        val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
+        cpuBitmap = WidgetUtils.createTextBitmap(this, "CPU", 20f, Color.RED, typeface)
     }
 
     private fun initializeMonitoring() {
@@ -63,23 +59,7 @@ class CpuMonitorService : Service() {
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         val typeface = ResourcesCompat.getFont(this, R.font.my_custom_font)!!
         val usageText = "%.0f%%".format(cpuUsage)
-        val cpuText = "CPU"
-
-        val usageBitmap = WidgetUtils.createTextBitmap(
-            context = this,
-            text = usageText,
-            textSizeSp = 20f,
-            textColor = Color.RED,
-            typeface = typeface
-        )
-
-        val cpuBitmap = WidgetUtils.createTextBitmap(
-            context = this,
-            text = cpuText,
-            textSizeSp = 20f,
-            textColor = Color.RED,
-            typeface = typeface
-        )
+        val usageBitmap = WidgetUtils.createTextBitmap(this, usageText, 20f, Color.RED, typeface)
 
         dataPoints.addLast(cpuUsage)
         if (dataPoints.size > MAX_DATA_POINTS) dataPoints.removeFirst()
@@ -90,7 +70,7 @@ class CpuMonitorService : Service() {
             views.setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
             views.setTextViewText(R.id.cpuTempWidgetTextView, "%.1f°C".format(cpuTemperature))
             views.setTextViewText(R.id.cpuModelWidgetTextView, getDeviceProcessorModel() ?: "Unknown")
-            views.setImageViewBitmap(R.id.graphWidgetImageView, createGraphBitmap(this, dataPoints))
+            views.setImageViewBitmap(R.id.graphWidgetImageView, WidgetUtils.createGraphBitmap(this, dataPoints, DottedGraphView::class))
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
@@ -104,8 +84,8 @@ class CpuMonitorService : Service() {
         )
 
         return NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID)
-            .setContentTitle("CPU Monitor")
-            .setContentText("CPU monitoring is active")
+            .setContentTitle(getString(R.string.cpu_monitor_title))
+            .setContentText(getString(R.string.cpu_monitor_text))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -117,30 +97,6 @@ class CpuMonitorService : Service() {
             "SM8475" -> "8+ Gen 1"
             else -> android.os.Build.SOC_MODEL
         }
-    }
-
-    private fun createGraphBitmap(context: Context, dataPoints: List<Double>): Bitmap {
-        val graphView = DottedGraphView(context)
-        graphView.setDataPoints(dataPoints)
-
-        val widthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 200f, context.resources.displayMetrics
-        ).toInt()
-
-        val heightPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 80f, context.resources.displayMetrics
-        ).toInt()
-
-        graphView.measure(
-            View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY)
-        )
-        graphView.layout(0, 0, widthPx, heightPx)
-
-        val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        graphView.draw(canvas)
-        return bitmap
     }
 
     override fun onDestroy() {

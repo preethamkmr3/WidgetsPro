@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupUI() {
         findViewById<Button>(R.id.button1).setOnClickListener {
             checkPermissions()
-            if (hasShizukuAccess()||hasRootAccess()) {
+            if (hasShizukuAccess() || hasRootAccess()) {
                 val cpuWidgetProvider = ComponentName(this, CpuWidgetProvider::class.java)
                 requestWidgetInstallation(cpuWidgetProvider)
             }
@@ -37,6 +38,10 @@ class MainActivity : AppCompatActivity() {
             val batteryWidgetProvider = ComponentName(this, BatteryWidgetProvider::class.java)
             requestWidgetInstallation(batteryWidgetProvider)
         }
+        findViewById<ImageView>(R.id.imageViewButton).setOnClickListener {
+            checkPermissions()
+            Toast.makeText(this, "Widget refreshed", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun requestWidgetInstallation(provider: ComponentName) {
@@ -44,21 +49,14 @@ class MainActivity : AppCompatActivity() {
             val appWidgetManager = AppWidgetManager.getInstance(this)
             if (appWidgetManager.isRequestPinAppWidgetSupported()) {
                 val requestCode = System.currentTimeMillis().toInt()
-                val intent = Intent()
-                intent.setComponent(provider)
-                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                val intent = Intent().setComponent(provider).setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
                 val successCallback = PendingIntent.getBroadcast(
-                    this,
-                    requestCode,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                val pinned = appWidgetManager.requestPinAppWidget(provider,null, successCallback)
-                if (!pinned) {
-                    Toast.makeText(this, "Failed to pin widget", Toast.LENGTH_SHORT).show()
-                }
+                val pinned = appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+                if (!pinned) Toast.makeText(this, R.string.widget_pin_failed, Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Widget pinning not supported", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.widget_pin_unsupported, Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Toast.makeText(this, "Failed to add widget: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -85,10 +83,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun showPermissionDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Permission Required")
-            .setMessage("This app requires root or Shizuku permissions to monitor CPU and battery. Please grant one to continue.")
-            .setPositiveButton("Retry") { _, _ -> checkPermissions() }
-            .setNegativeButton("Cancel") { _, _ -> finish() }
+            .setTitle(R.string.permission_required_title)
+            .setMessage(R.string.permission_required_message)
+            .setPositiveButton(R.string.retry) { _, _ -> checkPermissions() }
+            .setNegativeButton(R.string.cancel) { _, _ -> finish() }
             .show()
     }
 
@@ -106,10 +104,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         fun hasRootAccess(): Boolean {
             return try {
-                val process = Runtime.getRuntime().exec("su -c id")
+                val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "cat /proc/version"))
                 val output = BufferedReader(InputStreamReader(process.inputStream)).use { it.readLine() }
                 process.destroy()
-                output?.contains("uid=0") == true
+                output != null
             } catch (e: Exception) {
                 false
             }
