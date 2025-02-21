@@ -48,10 +48,12 @@
                 android:resource="@xml/cpu_widget_info" />
         </receiver>
 
-        <service
-            android:name=".BatteryMonitorService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
+        <receiver android:name=".BatteryReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.tpk.widget.ACTION_UPDATE_WIDGET" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".BatteryWidgetProvider"
