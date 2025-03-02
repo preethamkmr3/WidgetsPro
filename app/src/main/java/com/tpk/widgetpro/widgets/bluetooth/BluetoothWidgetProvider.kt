@@ -63,8 +63,8 @@ class BluetoothWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onDisabled(context: Context?) {
-        super.onDisabled(context)
+    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
+        super.onDeleted(context, appWidgetIds)
     }
 
     companion object {

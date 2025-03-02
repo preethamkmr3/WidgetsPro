@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Widget</string>
+    <string name="app_name">WidgetPro</string>
     <string name="widget_cpu_name">CPU Widget</string>
     <string name="widget_battery_name">Battery Widget</string>
     <string name="cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it">CPU widget needs special permissions to access data so grant Shizuku/SU access to use it.</string>
@@ -32,7 +32,7 @@
     <string name="add_battery_widget">Add Battery Widget</string>
     <string name="refresh_widgets">Refresh Widgets</string>
     <string name="add_cpu_widget">Add CPU Widget</string>
-    <string name="widgets_pro">Widgets Pro</string>
+    <string name="widgets_pro">Widget Pro</string>
     <string name="_60">60</string>
     <string name="unknown_device">Unknown device</string>
 </resources>

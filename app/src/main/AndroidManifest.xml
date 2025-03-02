@@ -114,8 +114,8 @@
             <intent-filter>
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
                 <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
         </receiver>
@@ -123,7 +123,7 @@
         <activity
             android:name=".widgets.bluetooth.PermissionRequestActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
