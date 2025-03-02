@@ -41,4 +41,8 @@ class CaffeineWidget : BaseWidgetProvider() {
             CaffeineWidget().updateNormalWidgetView(context, manager, widgetId)
         }
     }
+
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+    }
 }

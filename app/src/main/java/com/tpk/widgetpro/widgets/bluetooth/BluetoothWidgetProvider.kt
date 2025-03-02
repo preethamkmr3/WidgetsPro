@@ -14,6 +14,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
 import com.tpk.widgetpro.R
+import com.tpk.widgetpro.services.BatteryMonitorService
 import com.tpk.widgetpro.utils.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +63,9 @@ class BluetoothWidgetProvider : AppWidgetProvider() {
         }
     }
 
-
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+    }
 
     companion object {
 
