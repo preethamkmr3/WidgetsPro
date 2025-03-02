@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:updatePeriodMillis="0"
-    android:targetCellHeight="2"
-    android:targetCellWidth="2"
-    android:description="@string/widget_cpu_name"
-    android:previewLayout="@layout/widget_preview_cpu"
-    android:initialLayout="@layout/cpu_widget_layout"
-    android:widgetCategory="home_screen" />
