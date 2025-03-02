@@ -126,9 +126,9 @@ class BluetoothWidgetProvider : AppWidgetProvider() {
                 "getBatteryLevel", "getBattery",
                 "getBatteryInfo", "getHeadsetBattery"
             )
-
             for (methodName in methods) {
                 try {
+                    Thread.sleep(5000)
                     val method = device.javaClass.getMethod(methodName)
                     val level = method.invoke(device) as? Int ?: -1
                     if (level in 0..100) {
