@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="25dp"
+    android:background="?attr/colorSurface"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/my_custom_font"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:text="@string/widgets_pro"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <Button
+            android:id="@+id/button1"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:text="@string/add_cpu_widget" />
+
+        <ImageView
+            android:id="@+id/imageViewButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.9"
+            android:contentDescription="@string/refresh_widgets"
+            android:src="@drawable/ic_refresh" />
+    </LinearLayout>
+
+    <!-- Button to add Battery Widget -->
+    <Button
+        android:id="@+id/button2"
+        style="@style/CustomTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_battery_widget" />
+
+    <!-- Button to add Caffeine Widget -->
+    <Button
+        android:id="@+id/button3"
+        style="@style/CustomTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_caffeine_widget" />
+
+    <!-- Button to add Bluetooth Widget -->
+    <Button
+        android:id="@+id/button4"
+        style="@style/CustomTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_bluetooth_widget" />
+
+    <!-- ImageView as a refresh button -->
+    <!-- Updated CPU Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/cpu_update_interval_seconds"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <SeekBar
+            android:id="@+id/seekBarCpu"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="8"
+            android:thumbTint="@color/shape_background_color"
+            android:max="60"/>
+
+        <TextView
+            android:id="@+id/tvCpuValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/_60"
+            android:textSize="18sp"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Updated Battery Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/battery_update_interval_seconds"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <SeekBar
+            android:id="@+id/seekBarBattery"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="8"
+            android:thumbTint="@color/shape_background_color"
+            android:max="60"/>
+
+        <TextView
+            android:id="@+id/tvBatteryValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/_60"
+            android:textSize="18sp"
+            android:gravity="center"/>
+    </LinearLayout>
+
+</LinearLayout>

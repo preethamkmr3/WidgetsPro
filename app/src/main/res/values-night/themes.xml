@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.WidgetPro" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@android:color/system_neutral1_900</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="CustomTextView">
+        <item name="android:textColor">#ffffffff</item>
+    </style>
+</resources>

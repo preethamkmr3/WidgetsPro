@@ -1,0 +1,8 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/bluetooth_widget_layout"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:description="@string/bluetooth_battery_name"
+    android:updatePeriodMillis="0"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"/>

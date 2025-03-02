@@ -1,0 +1,8 @@
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:targetCellHeight="1"
+    android:targetCellWidth="1"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/caffeine_widget_layout"
+    android:resizeMode="none"
+    android:description="@string/widget_caffeine_name"
+    android:widgetCategory="home_screen|keyguard"/>
