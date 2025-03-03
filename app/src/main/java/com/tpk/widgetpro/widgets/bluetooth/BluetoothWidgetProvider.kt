@@ -63,10 +63,6 @@ class BluetoothWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        super.onDeleted(context, appWidgetIds)
-    }
-
     companion object {
 
         private val scope = CoroutineScope(Dispatchers.Main)
@@ -131,7 +127,7 @@ class BluetoothWidgetProvider : AppWidgetProvider() {
             )
             for (methodName in methods) {
                 try {
-                    Thread.sleep(5000)
+                    Thread.sleep(2000)
                     val method = device.javaClass.getMethod(methodName)
                     val level = method.invoke(device) as? Int ?: -1
                     if (level in 0..100) {
