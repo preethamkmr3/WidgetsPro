@@ -27,7 +27,7 @@ class ImageLoader(
         scope.launch {
             try {
                 val imageUrl = ImageApiClient.getCachedUrl(context, device.name)
-                    ?: ImageApiClient.getImageUrl(device.name).also {
+                    ?: ImageApiClient.getImageUrl(context, device.name).also {
                         if (it.isNotEmpty()) ImageApiClient.cacheUrl(context, device.name, it)
                     }
 
