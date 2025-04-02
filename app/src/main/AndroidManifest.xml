@@ -160,18 +160,18 @@
             android:foregroundServiceType="systemExempted" />
 
         <receiver
-            android:name=".widgets.speedtest.SpeedWidgetProvider"
+            android:name=".widgets.networkusage.NetworkSpeedWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/speed_widget_info" />
+                android:resource="@xml/network_speed_widget_info" />
         </receiver>
 
         <service
-            android:name=".services.SpeedUpdateService"
+            android:name=".services.NetworkSpeedWidgetService"
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
 

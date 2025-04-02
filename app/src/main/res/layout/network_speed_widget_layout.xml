@@ -13,7 +13,7 @@
         android:layout_width="18sp"
         android:layout_height="18sp"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/network_updown"/>
+        android:src="@drawable/network_speed_widget_icon"/>
 
 
     <ImageView

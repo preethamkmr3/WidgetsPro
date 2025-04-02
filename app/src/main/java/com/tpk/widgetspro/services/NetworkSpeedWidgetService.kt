@@ -11,7 +11,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.TrafficStats
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -19,9 +18,9 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.tpk.widgetspro.R
 import com.tpk.widgetspro.utils.CommonUtils
-import com.tpk.widgetspro.widgets.speedtest.SpeedWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProvider
 
-class SpeedUpdateService : Service() {
+class NetworkSpeedWidgetService : Service() {
     private var previousBytes: Long = 0
     private val handler = Handler(Looper.getMainLooper())
     private val UPDATE_INTERVAL_MS = 1000L
@@ -53,7 +52,7 @@ class SpeedUpdateService : Service() {
     private fun updateSpeed() {
         val currentBytes = TrafficStats.getTotalRxBytes()
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        val thisWidget = ComponentName(applicationContext, SpeedWidgetProvider::class.java)
+        val thisWidget = ComponentName(applicationContext, NetworkSpeedWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
         val typeface = CommonUtils.getTypeface(applicationContext)
 
@@ -77,7 +76,7 @@ class SpeedUpdateService : Service() {
         typeface: Typeface
     ) {
         appWidgetIds.forEach { appWidgetId ->
-            val views = RemoteViews(packageName, R.layout.speed_widget_layout).apply {
+            val views = RemoteViews(packageName, R.layout.network_speed_widget_layout).apply {
                 setImageViewBitmap(
                     R.id.speed_text,
                     CommonUtils.createTextAlternateBitmap(
@@ -110,7 +109,7 @@ class SpeedUpdateService : Service() {
         )
 
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, Intent(this, SpeedWidgetProvider::class.java),
+            this, 0, Intent(this, NetworkSpeedWidgetProvider::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, channelId)
