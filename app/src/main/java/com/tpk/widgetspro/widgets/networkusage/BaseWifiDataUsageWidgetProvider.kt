@@ -182,7 +182,12 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
             val exp = minOf((Math.log(bytes.toDouble()) / Math.log(unit.toDouble())).toInt(), 5)
             val pre = "KMGTPE"[exp - 1]
             val value = bytes / Math.pow(unit.toDouble(), exp.toDouble())
-            return String.format("%.1f %sB", value, pre)
+
+            return if (exp <= 2) {
+                String.format("%.0f %sB", value, pre)
+            } else {
+                String.format("%.1f %sB", value, pre)
+            }
         }
     }
 }

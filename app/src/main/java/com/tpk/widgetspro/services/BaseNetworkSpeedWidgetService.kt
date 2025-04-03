@@ -16,6 +16,7 @@ import android.net.TrafficStats
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.tpk.widgetspro.R
@@ -74,8 +75,7 @@ class BaseNetworkSpeedWidgetService : Service() {
         val typeface = CommonUtils.getTypeface(applicationContext)
         val speedText = if (currentBytes != TrafficStats.UNSUPPORTED.toLong() && previousBytes != 0L) {
             val bytesInLastInterval = currentBytes - previousBytes
-            val speedMBps = (bytesInLastInterval / 1024.0 / 1024.0).toFloat()
-            String.format("%.2f MB/s", speedMBps)
+            formatSpeed(bytesInLastInterval.toLong())
         } else {
             "N/A"
         }
@@ -133,5 +133,19 @@ class BaseNetworkSpeedWidgetService : Service() {
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
+    }
+
+    private fun formatSpeed(bytesPerSecond: Long): String {
+        val unit = 1024
+        if (bytesPerSecond < unit) return "$bytesPerSecond B/s"
+        val exp = minOf((Math.log(bytesPerSecond.toDouble()) / Math.log(unit.toDouble())).toInt(), 5)
+        val pre = "KMGTPE"[exp - 1]
+        val value = bytesPerSecond / Math.pow(unit.toDouble(), exp.toDouble())
+
+        return if (exp <= 2) {
+            String.format("%.0f %sB/s", value, pre)
+        } else {
+            String.format("%.1f %sB/s", value, pre)
+        }
     }
 }
