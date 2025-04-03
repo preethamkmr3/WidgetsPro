@@ -10,7 +10,7 @@
         android:id="@+id/note_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your note"
+        android:hint="@string/notes_hint"
         android:lines="6"
         android:gravity="top|start"
         android:textColor="?android:attr/textColor"
@@ -20,9 +20,8 @@
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="@string/notes_save"
         android:layout_gravity="end"
         android:backgroundTint="@color/accent_color"
         android:textColor="@color/text_color" />
-
 </LinearLayout>

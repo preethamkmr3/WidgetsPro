@@ -11,8 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/text_color"
-        android:text="Tap to add note"
+        android:text="@string/tap_to_add_notes"
         android:padding="15dp"
         android:textSize="16sp" />
-
 </LinearLayout>
