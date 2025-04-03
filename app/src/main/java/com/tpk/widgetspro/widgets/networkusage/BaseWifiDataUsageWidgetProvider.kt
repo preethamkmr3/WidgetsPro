@@ -13,7 +13,7 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.RemoteViews
 import com.tpk.widgetspro.R
-import com.tpk.widgetspro.services.WifiDataUsageWidgetService
+import com.tpk.widgetspro.services.BaseWifiDataUsageWidgetService
 import com.tpk.widgetspro.utils.CommonUtils
 import com.tpk.widgetspro.utils.NetworkStatsHelper
 
@@ -40,7 +40,7 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
         val activeProviders = prefs.getStringSet("active_wifi_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         activeProviders.add(this::class.java.name)
         prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
-        context.startForegroundService(Intent(context, WifiDataUsageWidgetService::class.java))
+        context.startForegroundService(Intent(context, BaseWifiDataUsageWidgetService::class.java))
     }
 
     override fun onDisabled(context: Context) {
@@ -50,7 +50,7 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
         activeProviders.remove(this::class.java.name)
         prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
         if (activeProviders.isEmpty()) {
-            context.stopService(Intent(context, WifiDataUsageWidgetService::class.java))
+            context.stopService(Intent(context, BaseWifiDataUsageWidgetService::class.java))
         }
     }
 
@@ -64,13 +64,18 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
 
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, layoutResId: Int) {
             try {
+                if (!hasUsageAccessPermission(context)) {
+                    setPermissionPrompt(context, appWidgetManager, appWidgetId, layoutResId)
+                    return
+                }
+
                 val usage = NetworkStatsHelper.getWifiDataUsage(context, NetworkStatsHelper.SESSION_TODAY)
                 val totalBytes = usage[2]
                 val formattedUsage = formatBytes(totalBytes)
+
                 val views = RemoteViews(context.packageName, layoutResId).apply {
-                    // Apply scaling only if the circle layout is used
                     if (layoutResId == R.layout.wifi_data_usage_widget_circle) {
-                        val iconDrawable = context.getDrawable(R.drawable.wifi_data_usage)
+                        val iconDrawable = context.getDrawable(R.drawable.wifi_data_usage_icon)
                         val scaledIcon = scaleDrawable(iconDrawable, 0.9f)
                         setImageViewBitmap(R.id.wifi_data_usage_image, scaledIcon)
                         setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
@@ -78,64 +83,75 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
                             R.id.wifi_usage_text,
                             CommonUtils.createTextAlternateBitmap(context, formattedUsage, 14f, CommonUtils.getTypeface(context))
                         )
-
-                    }
-                    else{
+                    } else {
                         setImageViewBitmap(
                             R.id.wifi_data_usage_text,
                             CommonUtils.createTextAlternateBitmap(context, formattedUsage, 20f, CommonUtils.getTypeface(context))
                         )
                         setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
-
                     }
                 }
+
                 val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 val pendingIntent = PendingIntent.getActivity(
                     context,
-                    0,
+                    appWidgetId,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
                 views.setOnClickPendingIntent(R.id.wifi_data_usage, pendingIntent)
+                views.setOnClickPendingIntent(R.id.wifi_data_usage_circle, pendingIntent)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
+
             } catch (e: Exception) {
                 Log.e("DataUsageWidget", "Error getting WiFi data usage", e)
-                val usage = NetworkStatsHelper.getWifiDataUsage(context, NetworkStatsHelper.SESSION_TODAY)
-                val totalBytes = usage[2]
-                val formattedUsage = formatBytes(totalBytes)
-                val views = RemoteViews(context.packageName, layoutResId).apply {
-                    // Apply scaling only if the circle layout is used
-                    if (layoutResId == R.layout.wifi_data_usage_widget_circle) {
-                        val iconDrawable = context.getDrawable(R.drawable.wifi_data_usage)
-                        val scaledIcon = scaleDrawable(iconDrawable, 0.9f)
-                        setImageViewBitmap(R.id.wifi_data_usage_image, scaledIcon)
-                        setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
-                        setImageViewBitmap(
-                            R.id.wifi_usage_text,
-                            CommonUtils.createTextAlternateBitmap(context, formattedUsage, 14f, CommonUtils.getTypeface(context))
-                        )
-
-                    }
-                    else{
-                        setImageViewBitmap(
-                            R.id.wifi_data_usage_text,
-                            CommonUtils.createTextAlternateBitmap(context, "Click here", 20f, CommonUtils.getTypeface(context))
-                        )
-                        setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
-
-                    }
-                }
-                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                val pendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(R.id.wifi_data_usage, pendingIntent)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
+                setPermissionPrompt(context, appWidgetManager, appWidgetId, layoutResId)
             }
+        }
+
+        private fun hasUsageAccessPermission(context: Context): Boolean {
+            try {
+                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                val list = context.packageManager.queryIntentActivities(intent, 0)
+                return list.isNotEmpty()
+            } catch (e: Exception) {
+                Log.e("DataUsageWidget", "Error checking usage access permission", e)
+                return false
+            }
+        }
+
+        private fun setPermissionPrompt(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, layoutResId: Int) {
+            val views = RemoteViews(context.packageName, layoutResId).apply {
+                if (layoutResId == R.layout.wifi_data_usage_widget_circle) {
+                    val iconDrawable = context.getDrawable(R.drawable.wifi_data_usage_icon)
+                    val scaledIcon = scaleDrawable(iconDrawable, 0.9f)
+                    setImageViewBitmap(R.id.wifi_data_usage_image, scaledIcon)
+                    setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
+                    setImageViewBitmap(
+                        R.id.wifi_usage_text,
+                        CommonUtils.createTextAlternateBitmap(context, "Click here", 14f, CommonUtils.getTypeface(context))
+                    )
+                } else {
+                    setImageViewBitmap(
+                        R.id.wifi_data_usage_text,
+                        CommonUtils.createTextAlternateBitmap(context, "Click here", 20f, CommonUtils.getTypeface(context))
+                    )
+                    setInt(R.id.wifi_data_usage_image, "setColorFilter", CommonUtils.getAccentColor(context))
+                }
+            }
+
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                appWidgetId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.wifi_data_usage, pendingIntent)
+            views.setOnClickPendingIntent(R.id.wifi_data_usage_circle, pendingIntent)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
         private fun scaleDrawable(drawable: Drawable?, scaleFactor: Float): Bitmap? {

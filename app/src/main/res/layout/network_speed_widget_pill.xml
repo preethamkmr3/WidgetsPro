@@ -5,8 +5,7 @@
     android:orientation="horizontal"
     android:gravity="center"
     android:background="@drawable/rounded_layout_bg"
-    android:padding="8dp"
-    android:id="@+id/wifi_data_usage">
+    android:padding="8dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -15,15 +14,15 @@
         android:gravity="center_vertical">
 
         <ImageView
-            android:id="@+id/wifi_data_usage_image"
+            android:id="@+id/network_speed_widget_image"
             android:layout_marginEnd="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/wifi_data_usage_icon"/>
+            android:src="@drawable/network_speed_widget_icon"/>
 
         <ImageView
-            android:id="@+id/wifi_data_usage_text"
+            android:id="@+id/network_speed_widget_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

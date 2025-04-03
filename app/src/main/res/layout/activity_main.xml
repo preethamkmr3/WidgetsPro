@@ -83,7 +83,7 @@
             style="@style/CustomTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_speed_widget" />
+            android:text="@string/add_network_speed_widget" />
 
         <Button
             android:id="@+id/button7"

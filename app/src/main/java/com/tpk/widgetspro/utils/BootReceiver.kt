@@ -9,10 +9,10 @@ import com.tpk.widgetspro.widgets.battery.BatteryWidgetProvider
 import com.tpk.widgetspro.widgets.bluetooth.BluetoothWidgetProvider
 import com.tpk.widgetspro.widgets.caffeine.CaffeineWidget
 import com.tpk.widgetspro.widgets.cpu.CpuWidgetProvider
-import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderPill
-import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.BaseWifiDataUsageWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.BaseSimDataUsageWidgetProvider
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
-import com.tpk.widgetspro.widgets.speedtest.SpeedWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.BaseNetworkSpeedWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
 
 class BootReceiver : BroadcastReceiver() {
@@ -24,9 +24,9 @@ class BootReceiver : BroadcastReceiver() {
             updateWidgets(context, appWidgetManager, CaffeineWidget::class.java)
             updateWidgets(context, appWidgetManager, BluetoothWidgetProvider::class.java)
             updateWidgets(context, appWidgetManager, SunTrackerWidget::class.java)
-            updateWidgets(context, appWidgetManager, SpeedWidgetProvider::class.java)
-            updateWidgets(context, appWidgetManager, WifiDataUsageWidgetProviderPill::class.java)
-            updateWidgets(context, appWidgetManager, SimDataUsageWidgetProvider::class.java)
+            updateWidgets(context, appWidgetManager, BaseNetworkSpeedWidgetProvider::class.java)
+            updateWidgets(context, appWidgetManager, BaseWifiDataUsageWidgetProvider::class.java)
+            updateWidgets(context, appWidgetManager, BaseSimDataUsageWidgetProvider::class.java)
             updateWidgets(context, appWidgetManager, NoteWidgetProvider::class.java)
         }
     }

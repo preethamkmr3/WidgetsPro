@@ -45,8 +45,8 @@
     <string name="image_settings">Bluetooth widget settings</string>
     <string name="cpu_battery_settings">CPU and Battery widget settings</string>
     <string name="dropdown">Dropdown</string>
-    <string name="speed_test_description">Speed Test Widget</string>
-    <string name="add_speed_widget">Add Speed Widget</string>
+    <string name="network_speed_widget_description">Network Speed Widget</string>
+    <string name="add_network_speed_widget">Add Network Speed Widget</string>
     <string name="weather_settings">Weather widget settings</string>
     <string name="set_location">Set Location</string>
     <string name="switch_to_red_accent">Switch to Red Accent</string>
@@ -59,4 +59,7 @@
     <string name="_3600">3600</string>
     <string name="widget_notes_name">Notes Widget</string>
     <string name="add_notes_widget">Add Notes Widget</string>
+    <string name="select_widget_size">Select Widget Size</string>
+    <string name="widget_size_1x1">Circle</string>
+    <string name="widget_size_1x2">Pill</string>
 </resources>
