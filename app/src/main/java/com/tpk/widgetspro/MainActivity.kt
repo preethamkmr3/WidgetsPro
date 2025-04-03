@@ -46,7 +46,9 @@ import com.tpk.widgetspro.widgets.cpu.CpuWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.BaseWifiDataUsageWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderCircle
 import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderPill
-import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.BaseSimDataUsageWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProviderCircle
+import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProviderPill
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
@@ -146,15 +148,11 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
         findViewById<Button>(R.id.button2).setOnClickListener {
-            requestWidgetInstallation(
-                BatteryWidgetProvider::class.java
-            )
+            requestWidgetInstallation(BatteryWidgetProvider::class.java)
         }
         findViewById<ImageView>(R.id.imageViewButton).setOnClickListener { checkPermissions() }
         findViewById<Button>(R.id.button3).setOnClickListener {
-            requestWidgetInstallation(
-                CaffeineWidget::class.java
-            )
+            requestWidgetInstallation(CaffeineWidget::class.java)
         }
         findViewById<Button>(R.id.button4).setOnClickListener {
             if (hasBluetoothPermission()) requestWidgetInstallation(BluetoothWidgetProvider::class.java)
@@ -165,44 +163,32 @@ class MainActivity : AppCompatActivity() {
             )
         }
         findViewById<Button>(R.id.button5).setOnClickListener {
-            requestWidgetInstallation(
-                SunTrackerWidget::class.java
-            )
+            requestWidgetInstallation(SunTrackerWidget::class.java)
         }
         findViewById<Button>(R.id.button6).setOnClickListener {
-            requestWidgetInstallation(
-                NetworkSpeedWidgetProvider::class.java
-            )
+            requestWidgetInstallation(NetworkSpeedWidgetProvider::class.java)
         }
         findViewById<Button>(R.id.button7).setOnClickListener {
             showWifiWidgetSizeSelectionDialog()
         }
         findViewById<Button>(R.id.button8).setOnClickListener {
-            requestWidgetInstallation(
-                SimDataUsageWidgetProvider::class.java
-            )
+            showSimWidgetSizeSelectionDialog()
         }
         findViewById<Button>(R.id.button10).setOnClickListener {
-            requestWidgetInstallation(
-                NoteWidgetProvider::class.java
-            )
+            requestWidgetInstallation(NoteWidgetProvider::class.java)
         }
         findViewById<Button>(R.id.button9).setOnClickListener { switchTheme() }
         findViewById<Button>(R.id.reset_image_button).setOnClickListener { resetBluetoothImage() }
         suggestionsAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line)
         locationAutoComplete.setAdapter(suggestionsAdapter)
         locationAutoComplete.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (s != null && s.length > 2) {
                     fetchLocationSuggestions(s.toString())
                 }
             }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
+            override fun afterTextChanged(s: Editable?) {}
         })
         setLocationButton.setOnClickListener {
             val location = locationAutoComplete.text.toString().trim()
@@ -224,8 +210,7 @@ class MainActivity : AppCompatActivity() {
                     resetImageForDevice(this, it.name, appWidgetId)
                     clearCustomQueryForDevice(this, it.name, appWidgetId)
                     setCustomQueryForDevice(this, it.name, getSelectedItemsAsString(), appWidgetId)
-                    Toast.makeText(this, "Reset image and query for ${it.name}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, "Reset image and query for ${it.name}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -266,23 +251,17 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         when {
             hasCpuPermissions() -> startServiceAndFinish(true)
-            Shizuku.pingBinder() -> if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(
-                false
-            ) else Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
-
+            Shizuku.pingBinder() -> if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(false)
+            else Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
             else -> showPermissionDialog()
         }
     }
 
     private fun startServiceAndFinish(useRoot: Boolean) {
         startForegroundService(
-            Intent(this, CpuMonitorService::class.java).putExtra(
-                "use_root",
-                useRoot
-            )
+            Intent(this, CpuMonitorService::class.java).putExtra("use_root", useRoot)
         )
     }
-
 
     private fun showWifiWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
@@ -299,16 +278,28 @@ class MainActivity : AppCompatActivity() {
         builder.show().applyDialogTheme()
     }
 
+    private fun showSimWidgetSizeSelectionDialog() {
+        val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+        builder.setTitle(R.string.select_widget_size)
+        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
+        builder.setItems(sizes) { _, which ->
+            val providerClass = when (which) {
+                0 -> SimDataUsageWidgetProviderCircle::class.java
+                1 -> SimDataUsageWidgetProviderPill::class.java
+                else -> null
+            }
+            providerClass?.let { requestWidgetInstallation(it) }
+        }
+        builder.show().applyDialogTheme()
+    }
+
     private fun showPermissionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
         builder.setTitle(R.string.permission_required_title)
         builder.setMessage(R.string.permission_required_message)
         builder.setPositiveButton("Open Shizuku") { _, _ ->
             if (isShizukuInstalled()) checkPermissions() else startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://shizuku.rikka.app/")
-                )
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/"))
             )
             finish()
         }
@@ -333,13 +324,10 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            SHIZUKU_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(
-                false
-            ) else Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_SHORT).show()
-
-            REQUEST_BLUETOOTH_PERMISSIONS -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) requestWidgetInstallation(
-                BluetoothWidgetProvider::class.java
-            ) else Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show()
+            SHIZUKU_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(false)
+            else Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_SHORT).show()
+            REQUEST_BLUETOOTH_PERMISSIONS -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) requestWidgetInstallation(BluetoothWidgetProvider::class.java)
+            else Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -348,7 +336,6 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvCpuValue.text = progress.toString()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("cpu_interval", seekBar?.progress ?: 60).apply()
@@ -358,7 +345,6 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvBatteryValue.text = progress.toString()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("battery_interval", seekBar?.progress ?: 60).apply()
@@ -368,7 +354,6 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvWifiValue.text = progress.toString()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("wifi_data_usage_interval", seekBar?.progress ?: 60).apply()
@@ -380,11 +365,11 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvSimValue.text = progress.toString()
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("sim_data_usage_interval", seekBar?.progress ?: 60).apply()
-                SimDataUsageWidgetProvider.updateAllWidgets(applicationContext)
+                BaseSimDataUsageWidgetProvider.updateAllWidgets(applicationContext, SimDataUsageWidgetProviderCircle::class.java)
+                BaseSimDataUsageWidgetProvider.updateAllWidgets(applicationContext, SimDataUsageWidgetProviderPill::class.java)
             }
         })
     }
@@ -407,7 +392,7 @@ class MainActivity : AppCompatActivity() {
             SunTrackerWidget::class.java,
             NetworkSpeedWidgetProvider::class.java,
             BaseWifiDataUsageWidgetProvider::class.java,
-            SimDataUsageWidgetProvider::class.java,
+            BaseSimDataUsageWidgetProvider::class.java,
             NoteWidgetProvider::class.java
         )
 
@@ -469,12 +454,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getBluetoothWidgetIds(context: Context): IntArray {
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        return appWidgetManager.getAppWidgetIds(
-            ComponentName(
-                context,
-                BluetoothWidgetProvider::class.java
-            )
-        )
+        return appWidgetManager.getAppWidgetIds(ComponentName(context, BluetoothWidgetProvider::class.java))
     }
 
     private fun getSelectedDeviceAddress(context: Context, appWidgetId: Int): String? {

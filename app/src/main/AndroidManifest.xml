@@ -204,15 +204,24 @@
                 android:resource="@xml/wifi_data_usage_widget_pill_info" />
         </receiver>
 
-        <receiver
-            android:name=".widgets.networkusage.SimDataUsageWidgetProvider"
-            android:exported="true">
+        <receiver android:name=".widgets.networkusage.SimDataUsageWidgetProviderCircle"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/sim_data_usage_widget_info" />
+                android:resource="@xml/sim_data_usage_widget_circle_info" />
+        </receiver>
+
+        <receiver android:name=".widgets.networkusage.SimDataUsageWidgetProviderPill"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sim_data_usage_widget_pill_info" />
         </receiver>
 
         <service
@@ -221,7 +230,7 @@
             android:foregroundServiceType="systemExempted" />
 
         <service
-            android:name=".services.SimDataUsageWidgetService"
+            android:name=".services.BaseSimDataUsageWidgetService"
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
 
