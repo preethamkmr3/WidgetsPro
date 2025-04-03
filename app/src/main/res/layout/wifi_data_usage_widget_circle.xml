@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"
-            android:src="@drawable/wifi_data_usage"/>
+            android:src="@drawable/wifi_data_usage_icon"/>
 
         <ImageView
             android:id="@+id/wifi_usage_text"

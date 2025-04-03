@@ -44,9 +44,9 @@ import com.tpk.widgetspro.widgets.bluetooth.BluetoothWidgetProvider
 import com.tpk.widgetspro.widgets.caffeine.CaffeineWidget
 import com.tpk.widgetspro.widgets.cpu.CpuWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.BaseWifiDataUsageWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderCircle
 import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderPill
 import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProvider
-import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderCircle
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
@@ -286,8 +286,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showWifiWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
-        builder.setTitle("Select widget size")
-        val sizes = arrayOf("1x1", "1x2")
+        builder.setTitle(R.string.select_widget_size)
+        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
         builder.setItems(sizes) { _, which ->
             val providerClass = when (which) {
                 0 -> WifiDataUsageWidgetProviderCircle::class.java
@@ -406,7 +406,7 @@ class MainActivity : AppCompatActivity() {
             CaffeineWidget::class.java,
             SunTrackerWidget::class.java,
             NetworkSpeedWidgetProvider::class.java,
-            WifiDataUsageWidgetProviderPill::class.java,
+            BaseWifiDataUsageWidgetProvider::class.java,
             SimDataUsageWidgetProvider::class.java,
             NoteWidgetProvider::class.java
         )

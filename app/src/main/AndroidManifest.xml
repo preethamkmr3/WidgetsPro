@@ -191,7 +191,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/wifi_data_usage_widget_info_circle" />
+                android:resource="@xml/wifi_data_usage_widget_circle_info" />
         </receiver>
 
         <receiver android:name=".widgets.networkusage.WifiDataUsageWidgetProviderPill"
@@ -201,7 +201,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/wifi_data_usage_widget_info_pill" />
+                android:resource="@xml/wifi_data_usage_widget_pill_info" />
         </receiver>
 
         <receiver
@@ -216,7 +216,7 @@
         </receiver>
 
         <service
-            android:name=".services.WifiDataUsageWidgetService"
+            android:name=".services.BaseWifiDataUsageWidgetService"
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
 
