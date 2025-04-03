@@ -160,18 +160,29 @@
             android:foregroundServiceType="systemExempted" />
 
         <receiver
-            android:name=".widgets.networkusage.NetworkSpeedWidgetProvider"
-            android:exported="true">
+            android:name=".widgets.networkusage.NetworkSpeedWidgetProviderCircle"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/network_speed_widget_info" />
+                android:resource="@xml/network_speed_widget_circle_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.networkusage.NetworkSpeedWidgetProviderPill"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/network_speed_widget_pill_info" />
         </receiver>
 
         <service
-            android:name=".services.NetworkSpeedWidgetService"
+            android:name=".services.BaseNetworkSpeedWidgetService"
             android:exported="false"
             android:foregroundServiceType="systemExempted" />
 

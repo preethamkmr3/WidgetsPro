@@ -49,8 +49,10 @@ import com.tpk.widgetspro.widgets.networkusage.WifiDataUsageWidgetProviderPill
 import com.tpk.widgetspro.widgets.networkusage.BaseSimDataUsageWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProviderCircle
 import com.tpk.widgetspro.widgets.networkusage.SimDataUsageWidgetProviderPill
+import com.tpk.widgetspro.widgets.networkusage.BaseNetworkSpeedWidgetProvider
+import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProviderCircle
+import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProviderPill
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
-import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
 import rikka.shizuku.Shizuku
 import java.util.Locale
@@ -166,7 +168,7 @@ class MainActivity : AppCompatActivity() {
             requestWidgetInstallation(SunTrackerWidget::class.java)
         }
         findViewById<Button>(R.id.button6).setOnClickListener {
-            requestWidgetInstallation(NetworkSpeedWidgetProvider::class.java)
+            showNetworkSpeedWidgetSizeSelectionDialog()
         }
         findViewById<Button>(R.id.button7).setOnClickListener {
             showWifiWidgetSizeSelectionDialog()
@@ -251,8 +253,9 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         when {
             hasCpuPermissions() -> startServiceAndFinish(true)
-            Shizuku.pingBinder() -> if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(false)
-            else Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
+            Shizuku.pingBinder() -> if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(
+                false
+            ) else Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
             else -> showPermissionDialog()
         }
     }
@@ -293,6 +296,21 @@ class MainActivity : AppCompatActivity() {
         builder.show().applyDialogTheme()
     }
 
+    private fun showNetworkSpeedWidgetSizeSelectionDialog() {
+        val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+        builder.setTitle(R.string.select_widget_size)
+        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
+        builder.setItems(sizes) { _, which ->
+            val providerClass = when (which) {
+                0 -> NetworkSpeedWidgetProviderCircle::class.java
+                1 -> NetworkSpeedWidgetProviderPill::class.java
+                else -> null
+            }
+            providerClass?.let { requestWidgetInstallation(it) }
+        }
+        builder.show().applyDialogTheme()
+    }
+
     private fun showPermissionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
         builder.setTitle(R.string.permission_required_title)
@@ -324,10 +342,13 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            SHIZUKU_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(false)
-            else Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_SHORT).show()
-            REQUEST_BLUETOOTH_PERMISSIONS -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) requestWidgetInstallation(BluetoothWidgetProvider::class.java)
-            else Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show()
+            SHIZUKU_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(
+                false
+            ) else Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_SHORT).show()
+
+            REQUEST_BLUETOOTH_PERMISSIONS -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) requestWidgetInstallation(
+                BluetoothWidgetProvider::class.java
+            ) else Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -390,7 +411,7 @@ class MainActivity : AppCompatActivity() {
             BluetoothWidgetProvider::class.java,
             CaffeineWidget::class.java,
             SunTrackerWidget::class.java,
-            NetworkSpeedWidgetProvider::class.java,
+            BaseNetworkSpeedWidgetProvider::class.java,
             BaseWifiDataUsageWidgetProvider::class.java,
             BaseSimDataUsageWidgetProvider::class.java,
             NoteWidgetProvider::class.java
@@ -416,12 +437,7 @@ class MainActivity : AppCompatActivity() {
         updateWidget(context, appWidgetId)
     }
 
-    private fun setCustomQueryForDevice(
-        context: Context,
-        deviceName: String,
-        query: String,
-        appWidgetId: Int
-    ) {
+    private fun setCustomQueryForDevice(context: Context, deviceName: String, query: String, appWidgetId: Int) {
         ImageApiClient.setCustomQuery(context, deviceName, query)
         resetImageForDevice(context, deviceName, appWidgetId)
         resetUpdateWidget(context, appWidgetId)
