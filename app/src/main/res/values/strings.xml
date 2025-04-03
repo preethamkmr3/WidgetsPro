@@ -57,8 +57,12 @@
     <string name="wifi_data_usage_interval">Wifi Data Usage Update Interval (minutes)</string>
     <string name="sim_data_usage_interval">Sim Data Usage Update Interval (minutes)</string>
     <string name="_3600">3600</string>
-    <string name="widget_notes_name">Notes Widget</string>
+    <string name="notes_widget_name">Notes Widget</string>
     <string name="add_notes_widget">Add Notes Widget</string>
+    <string name="tap_to_add_notes">Tap to add notes</string>
+    <string name="notes_label">Notes</string>
+    <string name="notes_hint">What\'s on your mind today?</string>
+    <string name="notes_save">Save</string>
     <string name="select_widget_size">Select Widget Size</string>
     <string name="widget_size_1x1">Circle</string>
     <string name="widget_size_1x2">Pill</string>

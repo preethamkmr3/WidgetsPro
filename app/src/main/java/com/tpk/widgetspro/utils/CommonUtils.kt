@@ -12,6 +12,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Build
 import android.util.TypedValue
@@ -49,7 +50,7 @@ object CommonUtils {
             this.typeface = typeface
             textAlign = Paint.Align.LEFT
         }
-        val textBounds = android.graphics.Rect()
+        val textBounds = Rect()
         paint.getTextBounds(text, 0, text.length, textBounds)
         val width = paint.measureText(text).toInt()
         val height = textBounds.height()
@@ -74,7 +75,7 @@ object CommonUtils {
             this.typeface = typeface
             textAlign = Paint.Align.LEFT
         }
-        val textBounds = android.graphics.Rect()
+        val textBounds = Rect()
         paint.getTextBounds(text, 0, text.length, textBounds)
         val width = paint.measureText(text).toInt()
         val height = textBounds.height()
@@ -87,37 +88,72 @@ object CommonUtils {
         context: Context,
         text: String,
         textSizeSp: Float,
-        typeface: Typeface
+        typeface: Typeface,
+        accentColor: Int,
+        textColor: Int
     ): Bitmap {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val headingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             textSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 textSizeSp,
                 context.resources.displayMetrics
             )
-            color = ContextCompat.getColor(context, R.color.text_color)
+            color = accentColor
             this.typeface = typeface
             textAlign = Paint.Align.LEFT
         }
 
-        val lines = text.split("\n")
+        val contentPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                textSizeSp,
+                context.resources.displayMetrics
+            )
+            color = textColor
+            this.typeface = typeface
+            textAlign = Paint.Align.LEFT
+        }
+
+        val lines = text.split("\n", limit = 2)
 
         if (lines.isEmpty()) {
             return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         }
 
-        val lineHeight = paint.getFontSpacing()
-        val maxWidth = lines.maxOf { paint.measureText(it) }
-        val bitmapWidth = (maxWidth + 0.5f).toInt()
-        val bitmapHeight = (lines.size * lineHeight + 0.5f).toInt()
-        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val fm = paint.fontMetrics
-        val baselineOffset = -fm.ascent
+        val heading = lines[0]
+        val content = if (lines.size > 1) lines[1] else ""
 
-        lines.forEachIndexed { index, line ->
-            val y = index * lineHeight + baselineOffset
-            canvas.drawText(line, 0f, y, paint)
+        val headingLines = listOf(heading)
+        val headingLineHeight = headingPaint.getFontSpacing()
+        val headingMaxWidth = headingLines.maxOf { headingPaint.measureText(it) }
+        val headingHeight = headingLines.size * headingLineHeight
+
+        val contentLines = content.split("\n")
+        val contentLineHeight = contentPaint.getFontSpacing()
+        val contentMaxWidth = if (content.isNotEmpty()) contentLines.maxOf { contentPaint.measureText(it) } else 0f
+        val contentHeight = if (content.isNotEmpty()) contentLines.size * contentLineHeight else 0f
+
+        val totalWidth = maxOf(headingMaxWidth, contentMaxWidth).toInt() + 10
+        val totalHeight = (headingHeight + if (content.isNotEmpty()) contentHeight + headingLineHeight else 0f).toInt() + 10
+
+        val bitmap = Bitmap.createBitmap(totalWidth, totalHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val headingFm = headingPaint.fontMetrics
+        val headingBaselineOffset = -headingFm.ascent
+        headingLines.forEachIndexed { index, line ->
+            val y = index * headingLineHeight + headingBaselineOffset
+            canvas.drawText(line, 5f, y, headingPaint)
+        }
+
+        if (content.isNotEmpty()) {
+            val contentFm = contentPaint.fontMetrics
+            val contentBaselineOffset = -contentFm.ascent
+            var contentY = headingHeight + contentBaselineOffset
+
+            contentLines.forEachIndexed { index, line ->
+                canvas.drawText(line, 5f, contentY + index * contentLineHeight, contentPaint)
+            }
         }
 
         return bitmap
@@ -143,6 +179,7 @@ object CommonUtils {
             context.sendBroadcast(intent)
         }
     }
+
     fun scheduleMidnightReset(context: Context, requestCode: Int, action: String, providerClass: Class<*>) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, providerClass).apply { this.action = action }
@@ -162,6 +199,7 @@ object CommonUtils {
         }
         alarmManager.setExact(AlarmManager.RTC, calendar.timeInMillis, pendingIntent)
     }
+
     fun hasUsageAccessPermission(context: Context): Boolean {
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOpsManager.checkOpNoThrow(
@@ -179,12 +217,10 @@ object NotificationUtils {
     const val CHANNEL_ID = "widget_monitor_channel"
 
     fun createChannel(context: Context) {
-
         val channel =
             NotificationChannel(CHANNEL_ID, "Widget Monitor", NotificationManager.IMPORTANCE_LOW)
                 .apply { description = "System resource monitoring" }
         context.getSystemService(NotificationManager::class.java)
             ?.createNotificationChannel(channel)
-
     }
 }

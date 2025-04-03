@@ -3,7 +3,7 @@
     android:targetCellHeight="1"
     android:targetCellWidth="3"
     android:updatePeriodMillis="0"
-    android:description="@string/widget_notes_name"
+    android:description="@string/notes_widget_name"
     android:initialLayout="@layout/notes_widget_layout"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
