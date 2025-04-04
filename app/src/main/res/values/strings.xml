@@ -71,4 +71,6 @@
     <string name="monthly">Monthly</string>
     <string name="start_not_set">Start: Not set</string>
     <string name="set_start_time">Set Start Time</string>
+    <string name="title_add_widgets">Home</string>
+    <string name="title_settings">Settings</string>
 </resources>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:background="?attr/colorSurface"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ndot"
+            android:paddingTop="20dp"
+            android:textColor="@color/accent_color"
+            android:paddingBottom="20dp"
+            android:text="@string/widgets_pro"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <Button
+                android:id="@+id/button1"
+                style="@style/CustomTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:text="@string/add_cpu_widget" />
+
+            <ImageView
+                android:id="@+id/imageViewButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.9"
+                android:contentDescription="@string/refresh_widgets"
+                android:src="@drawable/ic_refresh" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button2"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_battery_widget" />
+
+        <Button
+            android:id="@+id/button3"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_caffeine_widget" />
+
+        <Button
+            android:id="@+id/button4"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_bluetooth_widget" />
+
+        <Button
+            android:id="@+id/button5"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_sun_widget" />
+
+        <Button
+            android:id="@+id/button6"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_network_speed_widget" />
+
+        <Button
+            android:id="@+id/button7"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_wifi_data_usage_widget" />
+
+        <Button
+            android:id="@+id/button8"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_sim_data_usage_widget" />
+
+        <Button
+            android:id="@+id/button10"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_notes_widget" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
