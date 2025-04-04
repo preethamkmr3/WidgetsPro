@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.RemoteViews
 import com.tpk.widgetspro.R
@@ -48,24 +49,36 @@ class CpuMonitorService : BaseMonitorService() {
     private fun initializeMonitoring() {
         repeat(MAX_DATA_POINTS) { dataPoints.add(0.0) }
         cpuMonitor = CpuMonitor(useRoot) { cpuUsage, cpuTemperature ->
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val componentName = ComponentName(this, CpuWidgetProvider::class.java)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-            val typeface = CommonUtils.getTypeface(this)
-            val usageBitmap = CommonUtils.createTextBitmap(this, "%.0f%%".format(cpuUsage), 20f, typeface)
-            val cpuBitmap = CommonUtils.createTextBitmap(this, "CPU", 20f, typeface)
+            // Determine current theme
+            val prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE)
+            val isDarkTheme = prefs.getBoolean("dark_theme", false)
+            val isRedAccent = prefs.getBoolean("red_accent", false)
+            val themeResId = when {
+                isDarkTheme && isRedAccent -> R.style.Theme_WidgetsPro_Red_Dark
+                isDarkTheme -> R.style.Theme_WidgetsPro
+                isRedAccent -> R.style.Theme_WidgetsPro_Red_Light
+                else -> R.style.Theme_WidgetsPro
+            }
+            val themedContext = ContextThemeWrapper(applicationContext, themeResId)
 
+            // Generate bitmaps with themed context
+            val typeface = CommonUtils.getTypeface(themedContext)
+            val usageBitmap = CommonUtils.createTextBitmap(themedContext, "%.0f%%".format(cpuUsage), 20f, typeface)
+            val cpuBitmap = CommonUtils.createTextBitmap(themedContext, "CPU", 20f, typeface)
+
+            // Update data points and widget views
             dataPoints.addLast(cpuUsage)
             if (dataPoints.size > MAX_DATA_POINTS) dataPoints.removeFirst()
 
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+            val componentName = ComponentName(this, CpuWidgetProvider::class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
             appWidgetIds.forEach { appWidgetId ->
                 val views = RemoteViews(packageName, R.layout.cpu_widget_layout).apply {
                     setImageViewBitmap(R.id.cpuUsageImageView, usageBitmap)
                     setImageViewBitmap(R.id.cpuImageView, cpuBitmap)
-                    setViewVisibility(R.id.setupView, View.GONE)
-                    setTextViewText(R.id.cpuTempWidgetTextView, "%.1f°C".format(cpuTemperature))
-                    setTextViewText(R.id.cpuModelWidgetTextView, getDeviceProcessorModel())
-                    setImageViewBitmap(R.id.graphWidgetImageView, createGraphBitmap(this@CpuMonitorService, dataPoints, DottedGraphView::class))
+                    setImageViewBitmap(R.id.graphWidgetImageView, createGraphBitmap(themedContext, dataPoints, DottedGraphView::class))
+                    // ... rest of the updates
                 }
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }

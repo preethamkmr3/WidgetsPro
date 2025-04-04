@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.RemoteViews
 import com.tpk.widgetspro.R
@@ -34,21 +35,34 @@ class BatteryMonitorService : BaseMonitorService() {
 
     private fun initializeMonitoring() {
         batteryMonitor = BatteryMonitor(this) { percentage, health ->
+            // Determine current theme
+            val prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE)
+            val isDarkTheme = prefs.getBoolean("dark_theme", false)
+            val isRedAccent = prefs.getBoolean("red_accent", false)
+            val themeResId = when {
+                isDarkTheme && isRedAccent -> R.style.Theme_WidgetsPro_Red_Dark
+                isDarkTheme -> R.style.Theme_WidgetsPro
+                isRedAccent -> R.style.Theme_WidgetsPro_Red_Light
+                else -> R.style.Theme_WidgetsPro
+            }
+            val themedContext = ContextThemeWrapper(applicationContext, themeResId)
+
+            // Generate bitmaps with themed context
+            val typeface = CommonUtils.getTypeface(themedContext)
+            val percentageBitmap = CommonUtils.createTextBitmap(themedContext, "$percentage%", 20f, typeface)
+            val batteryBitmap = CommonUtils.createTextBitmap(themedContext, "BAT", 20f, typeface)
+            val graphBitmap = createGraphBitmap(themedContext, percentage, BatteryDottedView::class)
+
+            // Update widget views
             val appWidgetManager = AppWidgetManager.getInstance(this)
             val componentName = ComponentName(this, BatteryWidgetProvider::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-            val typeface = CommonUtils.getTypeface(this)
-            val percentageBitmap = CommonUtils.createTextBitmap(this, "$percentage%", 20f, typeface)
-            val batteryBitmap = CommonUtils.createTextBitmap(this, "BAT", 20f, typeface)
-            val graphBitmap = createGraphBitmap(this, percentage, BatteryDottedView::class)
-
             appWidgetIds.forEach { appWidgetId ->
                 val views = RemoteViews(packageName, R.layout.battery_widget_layout).apply {
                     setImageViewBitmap(R.id.batteryImageView, batteryBitmap)
                     setImageViewBitmap(R.id.batteryPercentageImageView, percentageBitmap)
                     setTextViewText(R.id.batteryModelWidgetTextView, health.toString())
                     setImageViewBitmap(R.id.graphWidgetImageView, graphBitmap)
-                    if (percentage == 0) setTextViewText(R.id.batteryPercentageImageView, getString(R.string.loading))
                 }
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
