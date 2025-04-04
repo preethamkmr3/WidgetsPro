@@ -49,7 +49,6 @@ class CpuMonitorService : BaseMonitorService() {
     private fun initializeMonitoring() {
         repeat(MAX_DATA_POINTS) { dataPoints.add(0.0) }
         cpuMonitor = CpuMonitor(useRoot) { cpuUsage, cpuTemperature ->
-            // Determine current theme
             val prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE)
             val isDarkTheme = prefs.getBoolean("dark_theme", false)
             val isRedAccent = prefs.getBoolean("red_accent", false)
@@ -61,12 +60,10 @@ class CpuMonitorService : BaseMonitorService() {
             }
             val themedContext = ContextThemeWrapper(applicationContext, themeResId)
 
-            // Generate bitmaps with themed context
             val typeface = CommonUtils.getTypeface(themedContext)
             val usageBitmap = CommonUtils.createTextBitmap(themedContext, "%.0f%%".format(cpuUsage), 20f, typeface)
             val cpuBitmap = CommonUtils.createTextBitmap(themedContext, "CPU", 20f, typeface)
 
-            // Update data points and widget views
             dataPoints.addLast(cpuUsage)
             if (dataPoints.size > MAX_DATA_POINTS) dataPoints.removeFirst()
 

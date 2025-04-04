@@ -47,13 +47,11 @@ class BatteryMonitorService : BaseMonitorService() {
             }
             val themedContext = ContextThemeWrapper(applicationContext, themeResId)
 
-            // Generate bitmaps with themed context
             val typeface = CommonUtils.getTypeface(themedContext)
             val percentageBitmap = CommonUtils.createTextBitmap(themedContext, "$percentage%", 20f, typeface)
             val batteryBitmap = CommonUtils.createTextBitmap(themedContext, "BAT", 20f, typeface)
             val graphBitmap = createGraphBitmap(themedContext, percentage, BatteryDottedView::class)
 
-            // Update widget views
             val appWidgetManager = AppWidgetManager.getInstance(this)
             val componentName = ComponentName(this, BatteryWidgetProvider::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)

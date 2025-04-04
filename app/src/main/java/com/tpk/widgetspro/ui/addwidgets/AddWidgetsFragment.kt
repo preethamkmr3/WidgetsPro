@@ -48,12 +48,10 @@ class AddWidgetsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for AddWidgetsFragment (e.g., add_widgets_fragment.xml)
         return inflater.inflate(R.layout.fragment_add_widgets, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Set up click listeners for widget-add buttons.
         view.findViewById<Button>(R.id.button1).setOnClickListener {
             if (hasCpuPermissions())
                 requestWidgetInstallation(CpuWidgetProvider::class.java)
@@ -96,7 +94,6 @@ class AddWidgetsFragment : Fragment() {
         }
     }
 
-    // Checks for CPU permissions using root or Shizuku.
     private fun hasCpuPermissions(): Boolean = try {
         Runtime.getRuntime().exec(arrayOf("su", "-c", "cat /proc/version"))
             .inputStream.bufferedReader().use { it.readLine() } != null
@@ -104,14 +101,12 @@ class AddWidgetsFragment : Fragment() {
         Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
     }
 
-    // Checks if Bluetooth permission is granted.
     private fun hasBluetoothPermission(): Boolean =
         ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.BLUETOOTH_CONNECT
         ) == PackageManager.PERMISSION_GRANTED
 
-    // Checks for permissions (either CPU or Shizuku) and starts the service.
     private fun checkPermissions() {
         when {
             hasCpuPermissions() -> (activity as? MainActivity)?.startServiceAndFinish(true)
@@ -122,7 +117,6 @@ class AddWidgetsFragment : Fragment() {
         }
     }
 
-    // Shows a permission dialog if needed.
     private fun showPermissionDialog() {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
         builder.setTitle(R.string.permission_required_title)
@@ -140,7 +134,6 @@ class AddWidgetsFragment : Fragment() {
         builder.show()
     }
 
-    // Checks if Shizuku is installed.
     private fun isShizukuInstalled(): Boolean = try {
         requireContext().packageManager.getPackageInfo("rikka.shizuku", 0)
         true
@@ -148,7 +141,6 @@ class AddWidgetsFragment : Fragment() {
         false
     }
 
-    // Requests a widget installation for the given provider class.
     private fun requestWidgetInstallation(providerClass: Class<*>) {
         val appWidgetManager = AppWidgetManager.getInstance(requireContext())
         val provider = ComponentName(requireContext(), providerClass)
@@ -167,7 +159,6 @@ class AddWidgetsFragment : Fragment() {
         }
     }
 
-    // Shows dialog for selecting network speed widget size.
     private fun showNetworkSpeedWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)
@@ -183,7 +174,6 @@ class AddWidgetsFragment : Fragment() {
         builder.show()
     }
 
-    // Shows dialog for selecting Wi-Fi widget size.
     private fun showWifiWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)
@@ -199,7 +189,6 @@ class AddWidgetsFragment : Fragment() {
         builder.show()
     }
 
-    // Shows dialog for selecting SIM widget size.
     private fun showSimWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)

@@ -29,18 +29,18 @@ abstract class BaseSimDataUsageWidgetProvider : AppWidgetProvider() {
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val activeProviders = prefs.getStringSet("active_wifi_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        val activeProviders = prefs.getStringSet("active_sim_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         activeProviders.add(this::class.java.name)
-        prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
+        prefs.edit().putStringSet("active_sim_data_usage_providers", activeProviders).apply()
         context.startForegroundService(Intent(context, BaseSimDataUsageWidgetService::class.java))
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val activeProviders = prefs.getStringSet("active_wifi_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        val activeProviders = prefs.getStringSet("active_sim_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         activeProviders.remove(this::class.java.name)
-        prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
+        prefs.edit().putStringSet("active_sim_data_usage_providers", activeProviders).apply()
         if (activeProviders.isEmpty()) {
             context.stopService(Intent(context, BaseSimDataUsageWidgetService::class.java))
         }

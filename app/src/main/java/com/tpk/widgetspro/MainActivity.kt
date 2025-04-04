@@ -42,10 +42,8 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Apply theme based on saved preferences
         applyTheme()
         super.onCreate(savedInstanceState)
-        // Use activity_main.xml which holds the BottomNavigationView and NavHostFragment
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
@@ -55,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         BitmapCacheManager.clearExpiredCache(this)
     }
 
-    // Applies the theme based on the saved preferences.
     private fun applyTheme() {
         val prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE)
         val isDarkTheme = prefs.getBoolean("dark_theme", false)
@@ -70,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Checks and requests battery optimization exceptions if needed.
     private fun checkBatteryOptimizations() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
@@ -81,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Called when battery optimization activity finishes.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) {
@@ -98,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Global permission responses that may affect child fragments.
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -108,22 +102,18 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             SHIZUKU_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                // Start CPU monitor service without root
                     startServiceAndFinish(useRoot = false)
                 else Toast.makeText(this, "Shizuku permission denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Called from AddWidgetsFragment to start the CpuMonitorService.
     fun startServiceAndFinish(useRoot: Boolean) {
         startForegroundService(
             Intent(this, CpuMonitorService::class.java).putExtra("use_root", useRoot)
         )
     }
 
-    // Switches the theme by updating preferences and then recreates the activity.
-    // This is called from SettingsFragment.
     fun switchTheme() {
         val prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE)
         val isDarkTheme = prefs.getBoolean("dark_theme", false)

@@ -28,6 +28,7 @@ import com.tpk.widgetspro.api.ImageApiClient
 import com.tpk.widgetspro.services.SunSyncService
 import com.tpk.widgetspro.utils.BitmapCacheManager
 import com.tpk.widgetspro.utils.CommonUtils
+import com.tpk.widgetspro.utils.ImageLoader
 import com.tpk.widgetspro.widgets.bluetooth.BluetoothWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.BaseSimDataUsageWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.BaseWifiDataUsageWidgetProvider
@@ -67,13 +68,11 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for SettingsFragment (e.g., settings_fragment.xml)
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Initialize views from the settings layout.
         seekBarCpu = view.findViewById(R.id.seekBarCpu)
         seekBarBattery = view.findViewById(R.id.seekBarBattery)
         seekBarWifi = view.findViewById(R.id.seekBarWifi)
@@ -90,7 +89,6 @@ class SettingsFragment : Fragment() {
         locationAutoComplete = view.findViewById(R.id.location_auto_complete)
         setLocationButton = view.findViewById(R.id.set_location_button)
 
-        // Load preferences and set initial states.
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         seekBarCpu.progress = prefs.getInt("cpu_interval", 60)
         seekBarBattery.progress = prefs.getInt("battery_interval", 60)
@@ -124,7 +122,6 @@ class SettingsFragment : Fragment() {
         setupSeekBarListeners(prefs)
         enumInputLayout.setOnClickListener { showEnumSelectionDialog() }
 
-        // Setup location suggestions adapter.
         suggestionsAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line)
         locationAutoComplete.setAdapter(suggestionsAdapter)
         locationAutoComplete.addTextChangedListener(object : TextWatcher {
@@ -149,21 +146,17 @@ class SettingsFragment : Fragment() {
             showTimePicker(calendar)
         }
 
-        // For image settings, reset button inside the layout.
         view.findViewById<Button>(R.id.reset_image_button).setOnClickListener {
             resetBluetoothImage()
         }
 
-        // For theme switch – delegate to MainActivity.
         view.findViewById<Button>(R.id.button9).setOnClickListener {
             (activity as? MainActivity)?.switchTheme()
         }
 
-        // Optionally, update title color based on accent.
         view.findViewById<TextView>(R.id.title_main)?.setTextColor(CommonUtils.getAccentColor(requireContext()))
     }
 
-    // Shows a time picker dialog to set data usage start time.
     private fun showTimePicker(calendar: Calendar) {
         val timePicker = TimePickerDialog(
             requireContext(),
@@ -192,14 +185,12 @@ class SettingsFragment : Fragment() {
         timePicker.show()
     }
 
-    // Handles frequency change for data usage period.
     private fun handleFrequencyChange(frequency: String) {
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("data_usage_frequency", frequency).apply()
         updateCustomTimeDisplay()
     }
 
-    // Updates the custom time display based on saved preferences.
     private fun updateCustomTimeDisplay() {
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
@@ -211,7 +202,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Sets up seek bar listeners to update preferences.
     private fun setupSeekBarListeners(prefs: android.content.SharedPreferences) {
         seekBarCpu.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -269,7 +259,6 @@ class SettingsFragment : Fragment() {
         })
     }
 
-    // Shows a multi-choice dialog for enum selection.
     private fun showEnumSelectionDialog() {
         val builder = AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
         builder.setTitle("Select options")
@@ -290,7 +279,6 @@ class SettingsFragment : Fragment() {
         dialog.applyDialogTheme()
     }
 
-    // Creates and adds a Chip view to the chip group.
     private fun addChipToGroup(enumText: String) {
         val chip = Chip(requireContext())
         chip.text = enumText
@@ -302,7 +290,6 @@ class SettingsFragment : Fragment() {
         chipGroup.addView(chip)
     }
 
-    // Returns the selected enum options as a single string.
     private fun getSelectedItemsAsString(): String {
         val selectedItems = mutableListOf<String>()
         for (i in 0 until chipGroup.childCount) {
@@ -312,7 +299,6 @@ class SettingsFragment : Fragment() {
         return selectedItems.joinToString(" ")
     }
 
-    // Applies the custom dialog theme to an AlertDialog.
     private fun AlertDialog.applyDialogTheme() {
         val textColor = ContextCompat.getColor(requireContext(), R.color.text_color)
         findViewById<TextView>(android.R.id.title)?.setTextColor(textColor)
@@ -321,7 +307,6 @@ class SettingsFragment : Fragment() {
         getButton(DialogInterface.BUTTON_NEGATIVE)?.setTextColor(textColor)
     }
 
-    // Gets coordinates from a location string using a Geocoder.
     private fun getCoordinatesFromLocation(location: String) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         try {
@@ -341,7 +326,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Saves the latitude and longitude to preferences.
     private fun saveLocationToPreferences(latitude: Double, longitude: Double) {
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         with(prefs.edit()) {
@@ -351,7 +335,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Fetches location suggestions and updates the autocomplete adapter.
     private fun fetchLocationSuggestions(query: String) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         try {
@@ -366,7 +349,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Resets the Bluetooth image for a widget by clearing caches and updating the widget.
     private fun resetBluetoothImage() {
         val appWidgetIds = getBluetoothWidgetIds(requireContext())
         appWidgetIds.forEach { appWidgetId ->
@@ -383,7 +365,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    // Helper methods for Bluetooth widget image reset functionality.
     private fun resetImageForDevice(context: Context, deviceName: String, appWidgetId: Int) {
         ImageApiClient.clearUrlCache(context, deviceName)
         BitmapCacheManager.clearBitmapCache(context, deviceName)
@@ -415,7 +396,7 @@ class SettingsFragment : Fragment() {
         deviceAddress?.let {
             val device = getBluetoothDeviceByAddress(it)
             device?.let { btDevice ->
-                com.tpk.widgetspro.utils.ImageLoader(context, appWidgetManager, appWidgetId, views).loadImageAsync(btDevice)
+                ImageLoader(context, appWidgetManager, appWidgetId, views).loadImageAsync(btDevice)
             }
         }
         appWidgetManager.updateAppWidget(appWidgetId, views)
