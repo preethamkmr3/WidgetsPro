@@ -20,18 +20,10 @@ import com.tpk.widgetspro.utils.NetworkStatsHelper
 abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
     abstract val layoutResId: Int
 
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        if (intent.action == ACTION_MIDNIGHT_RESET) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, this::class.java))
-            onUpdate(context, appWidgetManager, appWidgetIds)
-        }
-    }
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        appWidgetIds.forEach { updateAppWidget(context, appWidgetManager, it, layoutResId) }
-        scheduleMidnightReset(context)
+        appWidgetIds.forEach { appWidgetId ->
+            updateAppWidget(context, appWidgetManager, appWidgetId, layoutResId)
+        }
     }
 
     override fun onEnabled(context: Context) {
@@ -54,23 +46,16 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun scheduleMidnightReset(context: Context) {
-        CommonUtils.scheduleMidnightReset(context, WIFI_DATA_USAGE_REQUEST_CODE, ACTION_MIDNIGHT_RESET, this::class.java)
-    }
-
     companion object {
-        private const val ACTION_MIDNIGHT_RESET = "com.tpk.widgetspro.ACTION_WIFI_DATA_USAGE_RESET"
-        private const val WIFI_DATA_USAGE_REQUEST_CODE = 1001
-
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, layoutResId: Int) {
             try {
-                if (!hasUsageAccessPermission(context)) {
+                if (!CommonUtils.hasUsageAccessPermission(context)) {
                     setPermissionPrompt(context, appWidgetManager, appWidgetId, layoutResId)
                     return
                 }
 
-                val usage = NetworkStatsHelper.getWifiDataUsage(context, NetworkStatsHelper.SESSION_TODAY)
-                val totalBytes = usage[2]
+                val usage = NetworkStatsHelper.getWifiDataUsage(context)
+                val totalBytes = usage[2] // Total bytes (tx + rx)
                 val formattedUsage = formatBytes(totalBytes)
 
                 val views = RemoteViews(context.packageName, layoutResId).apply {
@@ -92,8 +77,9 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
                     }
                 }
 
-                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
                 val pendingIntent = PendingIntent.getActivity(
                     context,
                     appWidgetId,
@@ -102,22 +88,11 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.wifi_data_usage, pendingIntent)
                 views.setOnClickPendingIntent(R.id.wifi_data_usage_circle, pendingIntent)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
 
+                appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
                 Log.e("DataUsageWidget", "Error getting WiFi data usage", e)
                 setPermissionPrompt(context, appWidgetManager, appWidgetId, layoutResId)
-            }
-        }
-
-        private fun hasUsageAccessPermission(context: Context): Boolean {
-            try {
-                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                val list = context.packageManager.queryIntentActivities(intent, 0)
-                return list.isNotEmpty()
-            } catch (e: Exception) {
-                Log.e("DataUsageWidget", "Error checking usage access permission", e)
-                return false
             }
         }
 
@@ -141,8 +116,9 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
                 }
             }
 
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
             val pendingIntent = PendingIntent.getActivity(
                 context,
                 appWidgetId,
@@ -151,6 +127,7 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.wifi_data_usage, pendingIntent)
             views.setOnClickPendingIntent(R.id.wifi_data_usage_circle, pendingIntent)
+
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
@@ -182,7 +159,6 @@ abstract class BaseWifiDataUsageWidgetProvider : AppWidgetProvider() {
             val exp = minOf((Math.log(bytes.toDouble()) / Math.log(unit.toDouble())).toInt(), 5)
             val pre = "KMGTPE"[exp - 1]
             val value = bytes / Math.pow(unit.toDouble(), exp.toDouble())
-
             return if (exp <= 2) {
                 String.format("%.0f %sB", value, pre)
             } else {

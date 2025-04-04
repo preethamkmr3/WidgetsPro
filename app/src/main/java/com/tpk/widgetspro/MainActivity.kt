@@ -2,7 +2,9 @@ package com.tpk.widgetspro
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -18,10 +20,12 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.RadioGroup
 import android.widget.RemoteViews
 import android.widget.SeekBar
 import android.widget.TextView
@@ -55,6 +59,9 @@ import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProviderPill
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
 import rikka.shizuku.Shizuku
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -75,6 +82,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var locationAutoComplete: AutoCompleteTextView
     private lateinit var setLocationButton: Button
     private lateinit var suggestionsAdapter: ArrayAdapter<String>
+    private lateinit var tvStartTime: TextView
+    private lateinit var btnSetStartTime: Button
+    private lateinit var radioGroupFrequency: RadioGroup
 
     private val enumOptions = arrayOf(
         "black",
@@ -127,16 +137,40 @@ class MainActivity : AppCompatActivity() {
         chipGroup = findViewById(R.id.chip_group)
         locationAutoComplete = findViewById(R.id.location_auto_complete)
         setLocationButton = findViewById(R.id.set_location_button)
+        tvStartTime = findViewById(R.id.tvStartTime)
+        btnSetStartTime = findViewById(R.id.btnSetStartTime)
+        radioGroupFrequency = findViewById(R.id.radio_group_frequency)
 
         val prefs = getSharedPreferences("widget_prefs", MODE_PRIVATE)
         seekBarCpu.progress = prefs.getInt("cpu_interval", 60)
         seekBarBattery.progress = prefs.getInt("battery_interval", 60)
         seekBarWifi.progress = prefs.getInt("wifi_data_usage_interval", 60)
         seekBarSim.progress = prefs.getInt("sim_data_usage_interval", 60)
+        val startTime = prefs.getLong("data_usage_start_time", -1L)
+        val endTime = prefs.getLong("data_usage_end_time", -1L)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         tvCpuValue.text = seekBarCpu.progress.toString()
         tvBatteryValue.text = seekBarBattery.progress.toString()
         tvWifiValue.text = seekBarWifi.progress.toString()
         tvSimValue.text = seekBarSim.progress.toString()
+
+        if (startTime != -1L) {
+            tvStartTime.text = "Start: ${dateFormat.format(Date(startTime))}"
+        } else {
+            tvStartTime.text = "Start: Default (Today)"
+        }
+
+        val frequency = prefs.getString("data_usage_frequency", "daily") ?: "daily"
+        when (frequency) {
+            "daily" -> radioGroupFrequency.check(R.id.radio_daily)
+            "monthly" -> radioGroupFrequency.check(R.id.radio_monthly)
+        }
+        radioGroupFrequency.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.radio_daily -> handleFrequencyChange("daily")
+                R.id.radio_monthly -> handleFrequencyChange("monthly")
+            }
+        }
 
         setupSeekBarListeners(prefs)
         enumInputLayout.setOnClickListener { showEnumSelectionDialog() }
@@ -190,6 +224,7 @@ class MainActivity : AppCompatActivity() {
                     fetchLocationSuggestions(s.toString())
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
         setLocationButton.setOnClickListener {
@@ -200,6 +235,40 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show()
             }
         }
+        btnSetStartTime.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            showTimePicker(calendar)
+        }
+    }
+
+    private fun showTimePicker(calendar: Calendar) {
+        val timePicker = TimePickerDialog(
+            this,
+            R.style.CustomTimeTheme,
+            { _, hour, minute ->
+                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                calendar.set(Calendar.MINUTE, minute)
+                calendar.set(Calendar.SECOND, 0)
+                calendar.set(Calendar.MILLISECOND, 0)
+                val selectedTime = calendar.timeInMillis
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                val prefs = getSharedPreferences("widget_prefs", MODE_PRIVATE)
+
+                prefs.edit().putLong("data_usage_start_time", selectedTime).apply()
+                tvStartTime.text = "Start: ${dateFormat.format(Date(selectedTime))}"
+
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true // 24-hour format
+        ).apply {
+            setOnShowListener {
+                val textColor = ContextCompat.getColor(context, R.color.text_color)
+                getButton(DialogInterface.BUTTON_POSITIVE)?.setTextColor(textColor)
+                getButton(DialogInterface.BUTTON_NEGATIVE)?.setTextColor(textColor)
+            }
+        }
+        timePicker.show()
     }
 
     private fun resetBluetoothImage() {
@@ -212,9 +281,28 @@ class MainActivity : AppCompatActivity() {
                     resetImageForDevice(this, it.name, appWidgetId)
                     clearCustomQueryForDevice(this, it.name, appWidgetId)
                     setCustomQueryForDevice(this, it.name, getSelectedItemsAsString(), appWidgetId)
-                    Toast.makeText(this, "Reset image and query for ${it.name}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Reset image and query for ${it.name}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
+        }
+    }
+
+    private fun handleFrequencyChange(frequency: String) {
+        val prefs = getSharedPreferences("widget_prefs", MODE_PRIVATE)
+        prefs.edit().putString("data_usage_frequency", frequency).apply()
+        updateCustomTimeDisplay()
+    }
+
+    private fun updateCustomTimeDisplay() {
+        val prefs = getSharedPreferences("widget_prefs", MODE_PRIVATE)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+        val startTime = prefs.getLong("data_usage_start_time", -1L)
+        tvStartTime.text = if (startTime != -1L) {
+            "Start: ${dateFormat.format(Date(startTime))}"
+        } else {
+            "Start: Not set"
         }
     }
 
@@ -256,6 +344,7 @@ class MainActivity : AppCompatActivity() {
             Shizuku.pingBinder() -> if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) startServiceAndFinish(
                 false
             ) else Shizuku.requestPermission(SHIZUKU_REQUEST_CODE)
+
             else -> showPermissionDialog()
         }
     }
@@ -269,7 +358,8 @@ class MainActivity : AppCompatActivity() {
     private fun showWifiWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)
-        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
+        val sizes =
+            arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
         builder.setItems(sizes) { _, which ->
             val providerClass = when (which) {
                 0 -> WifiDataUsageWidgetProviderCircle::class.java
@@ -284,7 +374,8 @@ class MainActivity : AppCompatActivity() {
     private fun showSimWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)
-        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
+        val sizes =
+            arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
         builder.setItems(sizes) { _, which ->
             val providerClass = when (which) {
                 0 -> SimDataUsageWidgetProviderCircle::class.java
@@ -299,7 +390,8 @@ class MainActivity : AppCompatActivity() {
     private fun showNetworkSpeedWidgetSizeSelectionDialog() {
         val builder = AlertDialog.Builder(this, R.style.CustomDialogTheme)
         builder.setTitle(R.string.select_widget_size)
-        val sizes = arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
+        val sizes =
+            arrayOf(getString(R.string.widget_size_1x1), getString(R.string.widget_size_1x2))
         builder.setItems(sizes) { _, which ->
             val providerClass = when (which) {
                 0 -> NetworkSpeedWidgetProviderCircle::class.java
@@ -357,6 +449,7 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvCpuValue.text = progress.toString()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("cpu_interval", seekBar?.progress ?: 60).apply()
@@ -366,6 +459,7 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvBatteryValue.text = progress.toString()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("battery_interval", seekBar?.progress ?: 60).apply()
@@ -375,22 +469,36 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvWifiValue.text = progress.toString()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("wifi_data_usage_interval", seekBar?.progress ?: 60).apply()
-                BaseWifiDataUsageWidgetProvider.updateAllWidgets(applicationContext, WifiDataUsageWidgetProviderCircle::class.java)
-                BaseWifiDataUsageWidgetProvider.updateAllWidgets(applicationContext, WifiDataUsageWidgetProviderPill::class.java)
+                BaseWifiDataUsageWidgetProvider.updateAllWidgets(
+                    applicationContext,
+                    WifiDataUsageWidgetProviderCircle::class.java
+                )
+                BaseWifiDataUsageWidgetProvider.updateAllWidgets(
+                    applicationContext,
+                    WifiDataUsageWidgetProviderPill::class.java
+                )
             }
         })
         seekBarSim.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 tvSimValue.text = progress.toString()
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("sim_data_usage_interval", seekBar?.progress ?: 60).apply()
-                BaseSimDataUsageWidgetProvider.updateAllWidgets(applicationContext, SimDataUsageWidgetProviderCircle::class.java)
-                BaseSimDataUsageWidgetProvider.updateAllWidgets(applicationContext, SimDataUsageWidgetProviderPill::class.java)
+                BaseSimDataUsageWidgetProvider.updateAllWidgets(
+                    applicationContext,
+                    SimDataUsageWidgetProviderCircle::class.java
+                )
+                BaseSimDataUsageWidgetProvider.updateAllWidgets(
+                    applicationContext,
+                    SimDataUsageWidgetProviderPill::class.java
+                )
             }
         })
     }
@@ -411,9 +519,12 @@ class MainActivity : AppCompatActivity() {
             BluetoothWidgetProvider::class.java,
             CaffeineWidget::class.java,
             SunTrackerWidget::class.java,
-            BaseNetworkSpeedWidgetProvider::class.java,
-            BaseWifiDataUsageWidgetProvider::class.java,
-            BaseSimDataUsageWidgetProvider::class.java,
+            NetworkSpeedWidgetProviderCircle::class.java,
+            NetworkSpeedWidgetProviderPill::class.java,
+            WifiDataUsageWidgetProviderCircle::class.java,
+            WifiDataUsageWidgetProviderPill::class.java,
+            SimDataUsageWidgetProviderCircle::class.java,
+            SimDataUsageWidgetProviderPill::class.java,
             NoteWidgetProvider::class.java
         )
 
@@ -437,7 +548,12 @@ class MainActivity : AppCompatActivity() {
         updateWidget(context, appWidgetId)
     }
 
-    private fun setCustomQueryForDevice(context: Context, deviceName: String, query: String, appWidgetId: Int) {
+    private fun setCustomQueryForDevice(
+        context: Context,
+        deviceName: String,
+        query: String,
+        appWidgetId: Int
+    ) {
         ImageApiClient.setCustomQuery(context, deviceName, query)
         resetImageForDevice(context, deviceName, appWidgetId)
         resetUpdateWidget(context, appWidgetId)
@@ -470,7 +586,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun getBluetoothWidgetIds(context: Context): IntArray {
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        return appWidgetManager.getAppWidgetIds(ComponentName(context, BluetoothWidgetProvider::class.java))
+        return appWidgetManager.getAppWidgetIds(
+            ComponentName(
+                context,
+                BluetoothWidgetProvider::class.java
+            )
+        )
     }
 
     private fun getSelectedDeviceAddress(context: Context, appWidgetId: Int): String? {

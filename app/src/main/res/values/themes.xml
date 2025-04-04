@@ -27,6 +27,20 @@
         <item name="shapeAppearanceSmallComponent">@style/CustomDialogCorners</item>
     </style>
 
+    <style name="CustomTimeTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:backgroundTint">@color/shape_background_color</item>
+        <item name="buttonBarPositiveButtonStyle">@style/CustomButtonStyle.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/CustomButtonStyle.Negative</item>
+    </style>
+
+    <style name="CustomButtonStyle.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+
+    <style name="CustomButtonStyle.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+
     <style name="CustomDialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textColor">@color/text_color</item>
         <item name="android:textSize">20sp</item>

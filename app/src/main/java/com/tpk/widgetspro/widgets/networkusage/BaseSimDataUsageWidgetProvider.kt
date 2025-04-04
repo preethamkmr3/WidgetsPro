@@ -20,43 +20,40 @@ import com.tpk.widgetspro.utils.NetworkStatsHelper
 abstract class BaseSimDataUsageWidgetProvider : AppWidgetProvider() {
     abstract val layoutResId: Int
 
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        if (intent.action == ACTION_MIDNIGHT_RESET) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, this::class.java))
-            onUpdate(context, appWidgetManager, appWidgetIds)
-        }
-    }
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        appWidgetIds.forEach { updateAppWidget(context, appWidgetManager, it, layoutResId) }
-        scheduleMidnightReset(context)
+        appWidgetIds.forEach { appWidgetId ->
+            updateAppWidget(context, appWidgetManager, appWidgetId, layoutResId)
+        }
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val activeProviders = prefs.getStringSet("active_wifi_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        activeProviders.add(this::class.java.name)
+        prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
         context.startForegroundService(Intent(context, BaseSimDataUsageWidgetService::class.java))
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        context.stopService(Intent(context, BaseSimDataUsageWidgetService::class.java))
-    }
-
-    private fun scheduleMidnightReset(context: Context) {
-        CommonUtils.scheduleMidnightReset(
-            context, SIM_DATA_USAGE_REQUEST_CODE, ACTION_MIDNIGHT_RESET, this::class.java
-        )
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val activeProviders = prefs.getStringSet("active_wifi_data_usage_providers", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        activeProviders.remove(this::class.java.name)
+        prefs.edit().putStringSet("active_wifi_data_usage_providers", activeProviders).apply()
+        if (activeProviders.isEmpty()) {
+            context.stopService(Intent(context, BaseSimDataUsageWidgetService::class.java))
+        }
     }
 
     companion object {
-        private const val ACTION_MIDNIGHT_RESET = "com.tpk.widgetspro.ACTION_SIM_DATA_USAGE_RESET"
-        private const val SIM_DATA_USAGE_REQUEST_CODE = 1002
-
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, layoutResId: Int) {
             try {
-                val usage = NetworkStatsHelper.getSimDataUsage(context, NetworkStatsHelper.SESSION_TODAY)
+                if (!CommonUtils.hasUsageAccessPermission(context)) {
+                    setPermissionPrompt(context, appWidgetManager, appWidgetId, layoutResId)
+                    return
+                }
+                val usage = NetworkStatsHelper.getSimDataUsage(context)
                 val totalBytes = usage[2]
                 val formattedUsage = formatBytes(totalBytes)
 
