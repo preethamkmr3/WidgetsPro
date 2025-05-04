@@ -36,7 +36,10 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         const val ACTION_NEXT = "com.example.musicsimplewidget.ACTION_NEXT"
         const val ACTION_PREVIOUS = "com.example.musicsimplewidget.ACTION_PREVIOUS"
         const val ACTION_MEDIA_UPDATE = "com.example.musicsimplewidget.ACTION_MEDIA_UPDATE"
-        const val ACTION_TOGGLE_VISUALIZATION = "com.example.musicsimplewidget.ACTION_TOGGLE_VISUALIZATION"
+        const val ACTION_REFRESH_VISUALIZER = "com.example.musicsimplewidget.ACTION_REFRESH_VISUALIZER"
+        const val ACTION_REFRESH_VISUALIZER_ALL = "com.example.musicsimplewidget.ACTION_REFRESH_VISUALIZER_ALL"
+
+
         const val PREFS_NAME = "music_widget_prefs"
         const val PREF_PREFIX_KEY = "music_app_"
         const val PREF_LAST_TITLE_KEY = "_last_title"
@@ -44,16 +47,19 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         const val PREF_LAST_ART_PATH_KEY = "_last_art_path"
         const val PREF_VISUALIZATION_ENABLED_KEY = "_visualization_enabled"
         const val ALBUM_ART_DIR = "album_art"
+        const val VISUALIZER_STATE_DIR = "visualizer_state"
 
         private var lastAppLaunchTime: Long = 0
         private const val APP_LAUNCH_COOLDOWN_MS: Long = 3000
 
-        private val visualizerDrawers = ConcurrentHashMap<Int, MusicVisualizerDrawer>()
-        private val updateHandlers = ConcurrentHashMap<Int, Handler>()
-        private val updateRunnables = ConcurrentHashMap<Int, Runnable>()
+
+        val visualizerDrawers = ConcurrentHashMap<Int, MusicVisualizerDrawer>()
+        val updateHandlers = ConcurrentHashMap<Int, Handler>()
+        val updateRunnables = ConcurrentHashMap<Int, Runnable>()
         private const val VISUALIZER_UPDATE_INTERVAL_MS = 60L
 
-        private fun getWidgetIds(context: Context, appWidgetManager: AppWidgetManager): IntArray {
+
+        fun getWidgetIds(context: Context, appWidgetManager: AppWidgetManager): IntArray {
             return appWidgetManager.getAppWidgetIds(ComponentName(context, MusicSimpleWidgetProvider::class.java))
         }
 
@@ -65,12 +71,20 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             return File(cacheDir, "widget_${appWidgetId}_art.png")
         }
 
+        private fun getVisualizerBitmapFile(context: Context, appWidgetId: Int): File {
+            val cacheDir = File(context.cacheDir, VISUALIZER_STATE_DIR)
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs()
+            }
+            return File(cacheDir, "widget_${appWidgetId}_viz.png")
+        }
+
         private fun saveBitmapToFile(bitmap: Bitmap?, file: File): Boolean {
             if (bitmap == null || bitmap.isRecycled) return false
             var success = false
             try {
                 FileOutputStream(file).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                     success = true
                 }
             } catch (e: IOException) {
@@ -90,6 +104,26 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
                 null
             }
         }
+        private fun createEmptyBitmap(width: Int, height: Int): Bitmap? {
+            if (width <= 0 || height <= 0) return null
+            return try {
+                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+                    eraseColor(Color.TRANSPARENT)
+                }
+            } catch (e: OutOfMemoryError) {
+                null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        fun updateAllWidgetColors(context: Context) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val currentWidgetIds = getWidgetIds(context, appWidgetManager)
+            currentWidgetIds.forEach { id ->
+                visualizerDrawers[id]?.updateColor()
+            }
+        }
     }
 
     override fun onAppWidgetOptionsChanged(
@@ -102,12 +136,17 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
 
         val drawer = visualizerDrawers.getOrPut(appWidgetId) { MusicVisualizerDrawer(context.applicationContext) }
         if (newOptions != null) {
-            val minWidthDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-            val safeMinWidthDp = if (minWidthDp > 0) minWidthDp else 150
-            val visualizerWidthPx = safeMinWidthDp.dpToPx(context)
-            val visualizerHeightPx = 30.dpToPx(context)
-            drawer.updateDimensions(visualizerWidthPx, visualizerHeightPx)
+            val minHeightDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 60)
+            val visualizerSizeDp = (minHeightDp * 0.6).toInt().coerceIn(30, 60)
+            val visualizerWidthPx = visualizerSizeDp.dpToPx(context)
+            val visualizerHeightPx = visualizerSizeDp.dpToPx(context)
+            val safeWidth = if (visualizerWidthPx > 0) visualizerWidthPx else 50.dpToPx(context)
+            val safeHeight = if (visualizerHeightPx > 0) visualizerHeightPx else 50.dpToPx(context)
+            drawer.updateDimensions(safeWidth, safeHeight)
+        } else {
+            drawer.updateDimensions(50.dpToPx(context), 50.dpToPx(context))
         }
+
 
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isWidgetVisible = true
@@ -127,10 +166,14 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             drawer.updateColor()
 
             val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-            val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 150)
-            val visualizerWidthPx = minWidthDp.dpToPx(context)
-            val visualizerHeightPx = 30.dpToPx(context)
-            drawer.updateDimensions(visualizerWidthPx, visualizerHeightPx)
+            val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 60)
+            val visualizerSizeDp = (minHeightDp * 0.6).toInt().coerceIn(30, 60)
+            val visualizerWidthPx = visualizerSizeDp.dpToPx(context)
+            val visualizerHeightPx = visualizerSizeDp.dpToPx(context)
+            val safeWidth = if (visualizerWidthPx > 0) visualizerWidthPx else 50.dpToPx(context)
+            val safeHeight = if (visualizerHeightPx > 0) visualizerHeightPx else 50.dpToPx(context)
+            drawer.updateDimensions(safeWidth, safeHeight)
+
 
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val isWidgetVisible = true
@@ -150,49 +193,84 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val appWidgetIds = getWidgetIds(context, appWidgetManager)
 
-        if (appWidgetIds.isEmpty()) {
-            return
-        }
-
         val targetAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         val isVisible = intent.getBooleanExtra("WIDGET_VISIBLE", true)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-        if (action == ACTION_TOGGLE_VISUALIZATION && targetAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-            val enabledKey = PREF_PREFIX_KEY + targetAppWidgetId + PREF_VISUALIZATION_ENABLED_KEY
-            val currentEnabled = prefs.getBoolean(enabledKey, true)
-            prefs.edit().putBoolean(enabledKey, !currentEnabled).apply()
-            val drawer = visualizerDrawers.getOrPut(targetAppWidgetId) { MusicVisualizerDrawer(context.applicationContext) }
-            updateAppWidgetInternal(context, appWidgetManager, targetAppWidgetId, drawer, isVisible, !currentEnabled)
 
-        } else if (action == ACTION_MEDIA_UPDATE) {
-            appWidgetIds.forEach { id ->
-                val drawer = visualizerDrawers.getOrPut(id) { MusicVisualizerDrawer(context.applicationContext) }
-                val isVisualizationGloballyEnabled = prefs.getBoolean(PREF_PREFIX_KEY + id + PREF_VISUALIZATION_ENABLED_KEY, true)
-                updateAppWidgetInternal(context, appWidgetManager, id, drawer, isVisible, isVisualizationGloballyEnabled)
-            }
-        } else if (targetAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && targetAppWidgetId in appWidgetIds) {
-            val mediaController = getMediaController(context)
-            var needsUpdate = false
-            when (action) {
-                ACTION_PLAY_PAUSE -> {
-                    handlePlayPause(context, mediaController, targetAppWidgetId)
-                    needsUpdate = true
-                }
-                ACTION_NEXT -> {
-                    mediaController?.transportControls?.skipToNext()
-                    needsUpdate = true
-                }
-                ACTION_PREVIOUS -> {
-                    mediaController?.transportControls?.skipToPrevious()
-                    needsUpdate = true
+        when (action) {
+            ACTION_MEDIA_UPDATE -> {
+                val currentWidgetIds = getWidgetIds(context, appWidgetManager)
+                currentWidgetIds.forEach { id ->
+                    val drawer = visualizerDrawers.getOrPut(id) { MusicVisualizerDrawer(context.applicationContext) }
+                    val isVisualizationGloballyEnabled = prefs.getBoolean(PREF_PREFIX_KEY + id + PREF_VISUALIZATION_ENABLED_KEY, true)
+                    updateAppWidgetInternal(context, appWidgetManager, id, drawer, isVisible, isVisualizationGloballyEnabled)
                 }
             }
-            if(needsUpdate) {
-                val drawer = visualizerDrawers.getOrPut(targetAppWidgetId) { MusicVisualizerDrawer(context.applicationContext) }
-                val isVisualizationGloballyEnabled = prefs.getBoolean(PREF_PREFIX_KEY + targetAppWidgetId + PREF_VISUALIZATION_ENABLED_KEY, true)
-                updateAppWidgetInternal(context, appWidgetManager, targetAppWidgetId, drawer, true, isVisualizationGloballyEnabled)
+            ACTION_REFRESH_VISUALIZER_ALL -> {
+                val currentWidgetIds = getWidgetIds(context, appWidgetManager)
+                currentWidgetIds.forEach { id ->
+                    forceVisualizerRefresh(context, appWidgetManager, id)
+                }
             }
+            else -> {
+                if (appWidgetIds.isEmpty()) return
+
+                if (targetAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && targetAppWidgetId in appWidgetIds) {
+                    val mediaController = getMediaController(context)
+                    var needsMediaUpdate = false
+                    when (action) {
+                        ACTION_PLAY_PAUSE -> {
+                            handlePlayPause(context, mediaController, targetAppWidgetId)
+                            needsMediaUpdate = true
+                        }
+                        ACTION_NEXT -> {
+                            mediaController?.transportControls?.skipToNext()
+                            needsMediaUpdate = true
+                        }
+                        ACTION_PREVIOUS -> {
+                            mediaController?.transportControls?.skipToPrevious()
+                            needsMediaUpdate = true
+                        }
+                        ACTION_REFRESH_VISUALIZER -> {
+                            forceVisualizerRefresh(context, appWidgetManager, targetAppWidgetId)
+                        }
+                    }
+                    if(needsMediaUpdate) {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val drawer = visualizerDrawers.getOrPut(targetAppWidgetId) { MusicVisualizerDrawer(context.applicationContext) }
+                            val isVisualizationGloballyEnabled = prefs.getBoolean(PREF_PREFIX_KEY + targetAppWidgetId + PREF_VISUALIZATION_ENABLED_KEY, true)
+                            updateAppWidgetInternal(context, appWidgetManager, targetAppWidgetId, drawer, true, isVisualizationGloballyEnabled)
+                        }, 150)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun forceVisualizerRefresh(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        val drawer = visualizerDrawers[appWidgetId] ?: return
+        val isPlaying = getMediaController(context)?.playbackState?.state == PlaybackState.STATE_PLAYING
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isVisualizationGloballyEnabled = prefs.getBoolean(PREF_PREFIX_KEY + appWidgetId + PREF_VISUALIZATION_ENABLED_KEY, true)
+        val hasPermissions = hasRequiredPermissions(context)
+        val shouldVisualize = isPlaying && isVisualizationGloballyEnabled && hasPermissions
+
+        if (shouldVisualize) {
+            stopVisualizerUpdates(appWidgetId)
+            startVisualizerUpdates(context, appWidgetManager, appWidgetId, drawer)
+        } else {
+            val partialViews = RemoteViews(context.packageName, R.layout.music_simple_widget)
+            val savedBitmap = loadBitmapFromFile(getVisualizerBitmapFile(context, appWidgetId))
+            if (savedBitmap != null && !savedBitmap.isRecycled && isVisualizationGloballyEnabled && hasPermissions) {
+                partialViews.setImageViewBitmap(R.id.visualizer_image_view, savedBitmap)
+                partialViews.setViewVisibility(R.id.visualizer_image_view, View.VISIBLE)
+            } else {
+                partialViews.setViewVisibility(R.id.visualizer_image_view, View.GONE)
+            }
+            try {
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, partialViews)
+            } catch (e: Exception) { }
         }
     }
 
@@ -224,7 +302,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
 
             views.setTextViewText(R.id.text_title, title)
             views.setTextViewText(R.id.text_artist, artist)
-
             editor.putString(titleKey, title)
             editor.putString(artistKey, artist)
 
@@ -243,7 +320,7 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
                 artFile.delete()
             }
 
-            isPlaying = playbackState.state == PlaybackState.STATE_PLAYING || playbackState.state == PlaybackState.STATE_BUFFERING
+            isPlaying = playbackState.state == PlaybackState.STATE_PLAYING
             views.setImageViewResource(R.id.button_play_pause, if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow)
 
         } else {
@@ -251,22 +328,15 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             if (lastTitle != null) {
                 val lastArtist = prefs.getString(artistKey, "Unknown Artist")
                 val lastArtPath = prefs.getString(artPathKey, null)
-
                 views.setTextViewText(R.id.text_title, lastTitle)
                 views.setTextViewText(R.id.text_artist, lastArtist)
-
-                var loadedBitmap: Bitmap? = null
-                if (lastArtPath != null) {
-                    loadedBitmap = loadBitmapFromFile(File(lastArtPath))
-                }
-
+                val loadedBitmap = if (lastArtPath != null) loadBitmapFromFile(File(lastArtPath)) else null
                 if (loadedBitmap != null && !loadedBitmap.isRecycled) {
                     views.setImageViewBitmap(R.id.image_album_art, loadedBitmap)
                 } else {
                     views.setImageViewResource(R.id.image_album_art, R.drawable.ic_default_album_art)
                 }
                 views.setImageViewResource(R.id.button_play_pause, R.drawable.ic_play_arrow)
-
             } else {
                 setNoMusicPlaying(views)
             }
@@ -274,26 +344,60 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         }
         editor.apply()
 
-        val shouldVisualize = isPlaying && isWidgetVisible && isVisualizationGloballyEnabled
 
-        if (hasRequiredPermissions(context)) {
+        val visualizerBitmapFile = getVisualizerBitmapFile(context, appWidgetId)
+        val hasPermissions = hasRequiredPermissions(context)
+
+        if (hasPermissions) {
             visualizerDrawer.linkToGlobalOutput()
-
-            if (shouldVisualize) {
-                visualizerDrawer.resume()
-                views.setViewVisibility(R.id.visualizer_image_view, View.VISIBLE)
-                startVisualizerUpdates(context, appWidgetManager, appWidgetId, visualizerDrawer)
-            } else {
-                visualizerDrawer.pause()
-                stopVisualizerUpdates(appWidgetId)
-                views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
-            }
         } else {
-            visualizerDrawer.pause()
-            stopVisualizerUpdates(appWidgetId)
-            views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
             visualizerDrawer.release()
         }
+
+        val shouldVisualize = isPlaying && isWidgetVisible && isVisualizationGloballyEnabled && hasPermissions
+        val isCurrentlyVisualizing = updateHandlers.containsKey(appWidgetId)
+
+        if (shouldVisualize) {
+            visualizerDrawer.resume()
+            views.setViewVisibility(R.id.visualizer_image_view, View.VISIBLE)
+            startVisualizerUpdates(context, appWidgetManager, appWidgetId, visualizerDrawer)
+            visualizerBitmapFile.delete()
+
+        } else {
+            if (isCurrentlyVisualizing) {
+                val lastBitmap = visualizerDrawer.getVisualizerBitmap()
+
+                visualizerDrawer.pause()
+                stopVisualizerUpdates(appWidgetId)
+
+                if (lastBitmap != null && !lastBitmap.isRecycled) {
+                    if (saveBitmapToFile(lastBitmap, visualizerBitmapFile)) {
+                        views.setImageViewBitmap(R.id.visualizer_image_view, lastBitmap)
+                        views.setViewVisibility(R.id.visualizer_image_view, View.VISIBLE)
+                    } else {
+                        views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
+                        visualizerBitmapFile.delete()
+                    }
+                } else {
+                    views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
+                    visualizerBitmapFile.delete()
+                }
+
+            } else {
+                val savedBitmap = loadBitmapFromFile(visualizerBitmapFile)
+                if (savedBitmap != null && !savedBitmap.isRecycled && isVisualizationGloballyEnabled && hasPermissions) {
+                    views.setImageViewBitmap(R.id.visualizer_image_view, savedBitmap)
+                    views.setViewVisibility(R.id.visualizer_image_view, View.VISIBLE)
+                } else {
+                    views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
+                    if (!isVisualizationGloballyEnabled || !hasPermissions) {
+                        visualizerBitmapFile.delete()
+                    }
+                }
+                visualizerDrawer.pause()
+            }
+        }
+
 
         setupPendingIntents(context, views, appWidgetId)
 
@@ -304,23 +408,10 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun createEmptyBitmap(width: Int, height: Int): Bitmap? {
-        if (width <= 0 || height <= 0) return null
-        return try {
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
-                eraseColor(Color.TRANSPARENT)
-            }
-        } catch (e: OutOfMemoryError) {
-            null
-        } catch (e: Exception) {
-            null
-        }
-    }
 
     private fun hasRequiredPermissions(context: Context): Boolean {
         val recordAudioGranted = ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        val modifyAudioGranted = ContextCompat.checkSelfPermission(context, android.Manifest.permission.MODIFY_AUDIO_SETTINGS) == PackageManager.PERMISSION_GRANTED
-        return recordAudioGranted && modifyAudioGranted
+        return recordAudioGranted
     }
 
     private fun startVisualizerUpdates(
@@ -370,7 +461,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.text_artist, "")
         views.setImageViewResource(R.id.image_album_art, R.drawable.ic_default_album_art)
         views.setImageViewResource(R.id.button_play_pause, R.drawable.ic_play_arrow)
-        views.setViewVisibility(R.id.visualizer_image_view, View.GONE)
     }
 
     private fun setupPendingIntents(context: Context, views: RemoteViews, appWidgetId: Int) {
@@ -378,7 +468,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         val nextReqCode = appWidgetId * 10 + 1
         val prevReqCode = appWidgetId * 10 + 2
         val launchReqCode = appWidgetId * 10 + 3
-        val toggleVisReqCode = appWidgetId * 10 + 4
 
         val playPauseIntent = Intent(context, MusicSimpleWidgetProvider::class.java).apply {
             action = ACTION_PLAY_PAUSE
@@ -416,22 +505,12 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val toggleVisIntent = Intent(context, MusicSimpleWidgetProvider::class.java).apply {
-            action = ACTION_TOGGLE_VISUALIZATION
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            data = Uri.parse("widget://$appWidgetId/togglevis")
-        }
-        val toggleVisPendingIntent = PendingIntent.getBroadcast(
-            context, toggleVisReqCode, toggleVisIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
         views.setOnClickPendingIntent(R.id.button_play_pause, playPausePendingIntent)
         views.setOnClickPendingIntent(R.id.button_next, nextPendingIntent)
         views.setOnClickPendingIntent(R.id.button_previous, prevPendingIntent)
         views.setOnClickPendingIntent(R.id.image_album_art, launchPendingIntent)
-        views.setOnClickPendingIntent(R.id.widget_container, toggleVisPendingIntent)
     }
+
 
     private fun getMediaController(context: Context): MediaController? {
         val sessionManager = context.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager?
@@ -447,7 +526,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
 
     private fun getLaunchMusicAppIntent(context: Context, appWidgetId: Int): Intent {
         val currentMediaAppPackage = getMediaController(context)?.packageName
-
         return if (currentMediaAppPackage != null) {
             context.packageManager.getLaunchIntentForPackage(currentMediaAppPackage)
                 ?.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
@@ -476,6 +554,7 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             launchMusicApp(context, appWidgetId)
         }
     }
+
 
     private fun launchMusicApp(context: Context, appWidgetId: Int) {
         val currentTime = System.currentTimeMillis()
@@ -506,18 +585,15 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = prefs.edit()
         appWidgetIds.forEach { appWidgetId ->
-            val titleKey = PREF_PREFIX_KEY + appWidgetId + PREF_LAST_TITLE_KEY
-            val artistKey = PREF_PREFIX_KEY + appWidgetId + PREF_LAST_ARTIST_KEY
-            val artPathKey = PREF_PREFIX_KEY + appWidgetId + PREF_LAST_ART_PATH_KEY
-            val enabledKey = PREF_PREFIX_KEY + appWidgetId + PREF_VISUALIZATION_ENABLED_KEY
+            editor.remove(PREF_PREFIX_KEY + appWidgetId + PREF_LAST_TITLE_KEY)
+            editor.remove(PREF_PREFIX_KEY + appWidgetId + PREF_LAST_ARTIST_KEY)
+            editor.remove(PREF_PREFIX_KEY + appWidgetId + PREF_VISUALIZATION_ENABLED_KEY)
 
-            editor.remove(titleKey)
-            editor.remove(artistKey)
-            editor.remove(enabledKey)
-            prefs.getString(artPathKey, null)?.let { path ->
-                File(path).delete()
-            }
+            val artPathKey = PREF_PREFIX_KEY + appWidgetId + PREF_LAST_ART_PATH_KEY
+            prefs.getString(artPathKey, null)?.let { path -> File(path).delete() }
             editor.remove(artPathKey)
+
+            getVisualizerBitmapFile(context, appWidgetId).delete()
 
             stopVisualizerUpdates(appWidgetId)
             visualizerDrawers.remove(appWidgetId)?.release()
@@ -540,6 +616,7 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             stopVisualizerUpdates(appWidgetId)
             visualizerDrawers.remove(appWidgetId)?.release()
             getAlbumArtFile(context, appWidgetId).delete()
+            getVisualizerBitmapFile(context, appWidgetId).delete()
         }
         updateHandlers.clear()
         updateRunnables.clear()
@@ -553,7 +630,7 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
     }
 
     fun Int.dpToPx(context: Context): Int {
-        if (this == 0) return 0
+        if (this <= 0) return 0
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             this.toFloat(),
