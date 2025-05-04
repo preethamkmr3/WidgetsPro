@@ -19,6 +19,7 @@ import com.tpk.widgetspro.widgets.networkusage.*
 import com.tpk.widgetspro.widgets.notes.NoteWidgetProvider
 import com.tpk.widgetspro.widgets.sun.SunTrackerWidget
 import com.tpk.widgetspro.widgets.gif.GifWidgetProvider
+import com.tpk.widgetspro.widgets.music.MusicSimpleWidgetProvider
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -218,7 +219,8 @@ abstract class BaseMonitorService : Service(), CoroutineScope {
             NoteWidgetProvider::class.java,
             AnalogClockWidgetProvider_1::class.java,
             AnalogClockWidgetProvider_2::class.java,
-            GifWidgetProvider::class.java
+            GifWidgetProvider::class.java,
+            MusicSimpleWidgetProvider::class.java
         )
 
         providers.forEach { provider ->

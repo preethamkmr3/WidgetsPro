@@ -10,6 +10,7 @@ import android.media.session.MediaSessionManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.tpk.widgetspro.services.BaseMonitorService
 import com.tpk.widgetspro.widgets.music.MusicSimpleWidgetProvider
@@ -21,6 +22,7 @@ class MediaMonitorService : BaseMonitorService() {
     private val handler = Handler(Looper.getMainLooper())
     private val activeControllers = mutableMapOf<MediaController, MediaController.Callback>()
     @Volatile private var isWidgetAreaVisible = true
+    private lateinit var componentName: ComponentName
 
     private val visibilityChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -28,7 +30,7 @@ class MediaMonitorService : BaseMonitorService() {
                 val newVisibility = intent.getBooleanExtra(BaseMonitorService.EXTRA_IS_ACTIVE, true)
                 if (newVisibility != isWidgetAreaVisible) {
                     isWidgetAreaVisible = newVisibility
-                    sendUpdateBroadcast(newVisibility)
+                    sendUpdateBroadcast(isWidgetAreaVisible)
                 }
             }
         }
@@ -53,22 +55,29 @@ class MediaMonitorService : BaseMonitorService() {
         super.onCreate()
 
         mediaSessionManager = getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
-        val componentName = ComponentName(this, MediaMonitorService::class.java)
+        componentName = ComponentName(this, MediaMonitorService::class.java)
 
         activeSessionListener = MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
-            updateControllerCallbacks(controllers ?: emptyList())
-            sendUpdateBroadcast(isWidgetAreaVisible)
+            handler.post {
+                updateControllerCallbacks(controllers ?: emptyList())
+                sendUpdateBroadcast(isWidgetAreaVisible)
+            }
         }
 
-        try {
-            mediaSessionManager.addOnActiveSessionsChangedListener(activeSessionListener!!, componentName, handler)
-            updateControllerCallbacks(mediaSessionManager.getActiveSessions(componentName) ?: emptyList())
-            sendUpdateBroadcast(isWidgetAreaVisible)
-        } catch (e: SecurityException) {
-            stopSelf()
-        } catch (e: Exception) {
+        if (isNotificationListenerEnabled(this)) {
+            try {
+                mediaSessionManager.addOnActiveSessionsChangedListener(activeSessionListener!!, componentName, handler)
+                updateControllerCallbacks(mediaSessionManager.getActiveSessions(componentName) ?: emptyList())
+                sendUpdateBroadcast(isWidgetAreaVisible)
+            } catch (e: SecurityException) {
+                stopSelf()
+            } catch (e: Exception) {
+                stopSelf()
+            }
+        } else {
             stopSelf()
         }
+
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
             visibilityChangeReceiver,
@@ -81,8 +90,13 @@ class MediaMonitorService : BaseMonitorService() {
                 addAction(Intent.ACTION_CONFIGURATION_CHANGED)
                 addAction(ACTION_THEME_CHANGED)
             },
-            Context.RECEIVER_NOT_EXPORTED
+            RECEIVER_NOT_EXPORTED
         )
+    }
+
+    private fun isNotificationListenerEnabled(context: Context): Boolean {
+        val enabledListeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+        return enabledListeners != null && enabledListeners.contains(componentName.flattenToString())
     }
 
     private fun updateControllerCallbacks(controllers: List<MediaController>) {
@@ -131,15 +145,7 @@ class MediaMonitorService : BaseMonitorService() {
             }
         }
 
-        if (removedControllers.isNotEmpty() || (activeControllers.isEmpty() && controllers.isNotEmpty())) {
-            sendUpdateBroadcast(isWidgetAreaVisible)
-        }
-
-        if (controllers.isEmpty() && activeControllers.isNotEmpty()) {
-            activeControllers.forEach { (c, cb) -> try { c.unregisterCallback(cb) } catch (e: Exception) {} }
-            activeControllers.clear()
-            sendUpdateBroadcast(isWidgetAreaVisible)
-        } else if (controllers.isEmpty() && activeControllers.isEmpty()) {
+        if (removedControllers.isNotEmpty() || activeControllers.isEmpty() != controllers.isEmpty()) {
             sendUpdateBroadcast(isWidgetAreaVisible)
         }
     }
@@ -149,16 +155,22 @@ class MediaMonitorService : BaseMonitorService() {
         val updateIntent = Intent(this, MusicSimpleWidgetProvider::class.java).apply {
             action = MusicSimpleWidgetProvider.ACTION_MEDIA_UPDATE
             putExtra("WIDGET_VISIBLE", isVisible)
+            component = ComponentName(this@MediaMonitorService, MusicSimpleWidgetProvider::class.java)
         }
         sendBroadcast(updateIntent)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (MusicSimpleWidgetProvider.getWidgetIds(this).isEmpty()) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         super.onStartCommand(intent, flags, startId)
         return START_STICKY
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(visibilityChangeReceiver)
         unregisterReceiver(themeChangeReceiver)
 
@@ -177,7 +189,6 @@ class MediaMonitorService : BaseMonitorService() {
             }
         }
         activeControllers.clear()
-        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? {

@@ -124,4 +124,5 @@
     <string name="enable_60_fps_clock_updates">Enable Smooth Clock Updates (60 FPS)</string>
     <string name="warning_battery_drain">Warning: This may cause higher battery drain</string>
     <string name="analog_clock">Analog Clock Widget</string>
+    <string name="music_widget">Music Widget</string>
 </resources>
