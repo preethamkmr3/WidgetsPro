@@ -34,10 +34,8 @@
     <uses-permission
         android:name="android.permission.READ_MEDIA_VIDEO"
         tools:ignore="SelectedPhotoAccess" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+    <uses-permission
+        android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -78,11 +76,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"></activity>
 
         <service
             android:name=".services.cpu.CpuMonitorService"
@@ -300,7 +294,7 @@
             android:name=".services.notes.NoteWidgetInputService"
             android:excludeFromRecents="true"
             android:label="Notes"
-            android:theme="@style/Theme.NotesWidget"/>
+            android:theme="@style/Theme.NotesWidget" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
@@ -333,7 +327,7 @@
             android:name=".services.analogclock.AnalogClockUpdateService_2"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="systemExempted"/>
+            android:foregroundServiceType="systemExempted" />
 
         <receiver
             android:name=".widgets.analogclock.AnalogClockWidgetProvider_2"
@@ -378,14 +372,18 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <receiver android:name=".widgets.music.MusicSimpleWidgetProvider"
-            android:exported="true">
+        <receiver
+            android:name=".widgets.music.MusicSimpleWidgetProvider"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.example.musicsimplewidget.ACTION_PLAY_PAUSE"/>
-                <action android:name="com.example.musicsimplewidget.ACTION_NEXT"/>
-                <action android:name="com.example.musicsimplewidget.ACTION_PREVIOUS"/>
-                <action android:name="com.example.musicsimplewidget.ACTION_MEDIA_UPDATE"/>
+                <action android:name="com.tpk.widgetspro.ACTION_PLAY_PAUSE" />
+                <action android:name="com.tpk.widgetspro.ACTION_NEXT" />
+                <action android:name="com.tpk.widgetspro.ACTION_PREVIOUS" />
+                <action android:name="com.tpk.widgetspro.ACTION_MEDIA_UPDATE" />
+                <action android:name="com.tpk.widgetspro.ACTION_REFRESH_VISUALIZER" />
+                <action android:name="com.tpk.widgetspro.ACTION_REFRESH_VISUALIZER_ALL" />
+                <action android:name="com.tpk.widgetspro.ACTION_TOGGLE_VISUALIZATION" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -394,10 +392,11 @@
 
         <service
             android:name=".services.music.MediaMonitorService"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="systemExempted" >
+            android:exported="true"
+            android:foregroundServiceType="systemExempted"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>

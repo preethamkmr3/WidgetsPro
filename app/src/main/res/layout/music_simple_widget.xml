@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_container"
@@ -32,6 +31,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
+            android:textAlignment="center"
             android:textColor="@color/text_color"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -42,6 +42,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
+            android:textAlignment="center"
             android:textColor="@color/text_color"
             android:textSize="10sp" />
 
@@ -81,9 +82,9 @@
     </LinearLayout>
     <ImageView
         android:id="@+id/visualizer_image_view"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:scaleType="fitXY"
-        android:layout_marginTop="5dp"
+        android:layout_gravity="center_vertical"
         tools:ignore="ContentDescription" />
 </LinearLayout>
