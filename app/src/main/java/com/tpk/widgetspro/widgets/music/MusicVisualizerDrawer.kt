@@ -11,7 +11,6 @@ import com.tpk.widgetspro.R
 import com.tpk.widgetspro.utils.CommonUtils
 import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.sqrt
 
 class MusicVisualizerDrawer(private val context: Context) {
 
@@ -20,12 +19,13 @@ class MusicVisualizerDrawer(private val context: Context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var bytes: ByteArray? = null
     private var isPaused = false
+    private var isActive = false
     private var visualizerBitmap: Bitmap? = null
     private var canvas: Canvas? = null
     internal var visualizerWidth: Int = 200
     internal var visualizerHeight: Int = 50
 
-    private val columns = 30
+    private val columns = 3
     private val rows = 15
     private var dotRadius = 2f
     private var spacingHorizontal = 0f
@@ -36,9 +36,6 @@ class MusicVisualizerDrawer(private val context: Context) {
         strokeCap = Paint.Cap.ROUND
         style = Paint.Style.FILL
     }
-    private val fillAreaTopOffset = 2f
-    private val fillAreaBottomOffset = 2f
-
 
     init {
         paint.style = Paint.Style.FILL
@@ -49,15 +46,13 @@ class MusicVisualizerDrawer(private val context: Context) {
 
     private fun calculateGridParams() {
         if (visualizerWidth > 0 && visualizerHeight > 0) {
-            val availableHeight = visualizerHeight - fillAreaTopOffset - fillAreaBottomOffset
-            spacingHorizontal = visualizerWidth.toFloat() / columns
-            spacingVertical = if (rows > 1) availableHeight / (rows - 1) else availableHeight
+            spacingHorizontal = if (columns > 1) visualizerWidth.toFloat() / columns else visualizerWidth.toFloat()
+            spacingVertical = if (rows > 1) visualizerHeight.toFloat() / rows else visualizerHeight.toFloat()
             dotRadius = (spacingHorizontal / 3f).coerceAtLeast(1f)
             paint.strokeWidth = dotRadius * 1.5f
             greyDotPaint.strokeWidth = dotRadius * 1.5f
         }
     }
-
 
     fun updateDimensions(width: Int, height: Int) {
         if (width > 0 && height > 0 && (width != visualizerWidth || height != visualizerHeight || visualizerBitmap == null || visualizerBitmap!!.isRecycled)) {
@@ -68,6 +63,7 @@ class MusicVisualizerDrawer(private val context: Context) {
                 visualizerBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 canvas = Canvas(visualizerBitmap!!)
                 calculateGridParams()
+                visualizerBitmap?.eraseColor(Color.TRANSPARENT)
             } catch (e: Exception) {
                 visualizerBitmap = null
                 canvas = null
@@ -78,6 +74,7 @@ class MusicVisualizerDrawer(private val context: Context) {
                     visualizerBitmap = Bitmap.createBitmap(visualizerWidth, visualizerHeight, Bitmap.Config.ARGB_8888)
                     canvas = Canvas(visualizerBitmap!!)
                     calculateGridParams()
+                    visualizerBitmap?.eraseColor(Color.TRANSPARENT)
                 } catch (e: Exception) {
                     visualizerBitmap = null
                     canvas = null
@@ -85,7 +82,6 @@ class MusicVisualizerDrawer(private val context: Context) {
             }
         }
     }
-
 
     fun updateColor() {
         paint.color = CommonUtils.getAccentColor(context)
@@ -106,73 +102,76 @@ class MusicVisualizerDrawer(private val context: Context) {
         release()
         currentSessionId = targetSessionId
 
-        if (targetSessionId != -1) {
-            try {
-                visualizer = Visualizer(targetSessionId).apply {
-                    enabled = false
-                    val range = Visualizer.getCaptureSizeRange()
-                    captureSize = range?.getOrNull(1)?.coerceAtLeast(1024) ?: 1024
-                    scalingMode = Visualizer.SCALING_MODE_NORMALIZED
+        try {
+            visualizer = Visualizer(targetSessionId).apply {
+                enabled = false
+                val range = Visualizer.getCaptureSizeRange()
+                captureSize = range?.getOrNull(1)?.coerceAtLeast(1024) ?: 1024
+                scalingMode = Visualizer.SCALING_MODE_NORMALIZED
 
-                    val captureRate = Visualizer.getMaxCaptureRate() / 2
-                    val status = setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
-                        override fun onWaveFormDataCapture(
-                            viz: Visualizer?,
-                            waveform: ByteArray?,
-                            samplingRate: Int
-                        ) {
-                            if (waveform != null) {
-                                bytes = waveform.clone()
-                                if (!isPaused) {
-                                    drawVisualization()
-                                }
+                val captureRate = Visualizer.getMaxCaptureRate() / 2
+                val status = setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
+                    override fun onWaveFormDataCapture(
+                        viz: Visualizer?,
+                        waveform: ByteArray?,
+                        samplingRate: Int
+                    ) {
+                        if (waveform != null && isActive) {
+                            val processedWaveform = ByteArray(waveform.size) { i ->
+                                (waveform[i].toInt() - 128).toByte()
                             }
+                            bytes = processedWaveform
+                            drawVisualization()
                         }
-
-                        override fun onFftDataCapture(
-                            viz: Visualizer?,
-                            fft: ByteArray?,
-                            samplingRate: Int
-                        ) { }
-                    }, captureRate, true, false)
-
-                    if (status != Visualizer.SUCCESS) {
-                        release()
-                        return@setPlayerId
                     }
-                    enabled = true
+
+                    override fun onFftDataCapture(
+                        viz: Visualizer?,
+                        fft: ByteArray?,
+                        samplingRate: Int
+                    ) { }
+                }, captureRate, true, false)
+
+                if (status != Visualizer.SUCCESS) {
+                    release()
+                    return@setPlayerId
                 }
-                isPaused = false
-            } catch (e: Exception) {
-                release()
             }
-        } else {
-            clearVisualization()
+            isPaused = true
+            isActive = false
+        } catch (e: Exception) {
+            release()
         }
     }
 
     fun pause() {
         if (!isPaused) {
             isPaused = true
+            isActive = false
             try {
                 visualizer?.enabled = false
-            } catch (e: Exception) { }
-            clearVisualization()
+            } catch (e: Exception) {
+
+            }
         }
     }
 
     fun resume() {
         if (isPaused) {
             isPaused = false
+            isActive = true
             try {
-                if (visualizer != null) {
-                    visualizer?.enabled = true
-                } else {
+                if (visualizer == null) {
                     linkToGlobalOutput()
+                    if (visualizer == null) return
                 }
-            } catch (e: Exception) { }
+                visualizer?.enabled = true
+            } catch (e: Exception) {
+                isActive = false
+            }
         }
     }
+
 
     fun release() {
         try {
@@ -182,6 +181,7 @@ class MusicVisualizerDrawer(private val context: Context) {
                 release()
             }
         } catch (e: Exception) {
+
         } finally {
             visualizer = null
             currentSessionId = -1
@@ -189,6 +189,8 @@ class MusicVisualizerDrawer(private val context: Context) {
             visualizerBitmap?.recycle()
             visualizerBitmap = null
             canvas = null
+            isPaused = true
+            isActive = false
         }
     }
 
@@ -199,46 +201,32 @@ class MusicVisualizerDrawer(private val context: Context) {
 
         if (visualizerWidth <= 0 || visualizerHeight <= 0 || localBitmap.isRecycled) {
             updateDimensions(visualizerWidth, visualizerHeight)
-            if(visualizerBitmap == null || visualizerBitmap!!.isRecycled) return
+            if (visualizerBitmap == null || visualizerBitmap!!.isRecycled) return
         }
-
 
         localBitmap.eraseColor(Color.TRANSPARENT)
 
-
-        for (col in 0 until columns) {
-            for (row in 0 until rows) {
-                val x = col * spacingHorizontal + spacingHorizontal / 2f
-                val y = visualizerHeight - fillAreaBottomOffset - row * spacingVertical
-                if (y >= fillAreaTopOffset && y <= visualizerHeight - fillAreaBottomOffset) {
-                    localCanvas.drawCircle(x, y, dotRadius, greyDotPaint)
-                }
-            }
-        }
-
+        val centerLineY = visualizerHeight / 2f
         val div = currentBytes.size.toFloat() / columns
 
         for (i in 0 until columns) {
             val bytePosition = ceil(i * div).toInt().coerceIn(0, currentBytes.size - 1)
-            val magnitude = abs(currentBytes[bytePosition].toInt()) / 128.0f
-            val normalizedMagnitude = sqrt(magnitude)
-
-            val dotsToFill = (normalizedMagnitude * rows).toInt()
+            val amplitude = currentBytes[bytePosition].toFloat()
+            val normalizedAmplitude = (amplitude / 128.0f) * (rows / 2f)
+            val dotsCount = abs(normalizedAmplitude).toInt()
             val x = i * spacingHorizontal + spacingHorizontal / 2f
 
-            for (row in 0 until dotsToFill) {
-                val y = visualizerHeight - fillAreaBottomOffset - row * spacingVertical
-                if (y >= fillAreaTopOffset && y <= visualizerHeight - fillAreaBottomOffset) {
-                    localCanvas.drawCircle(x, y, dotRadius, paint)
+            for (row in 0 until dotsCount) {
+                val yUp = centerLineY - (row + 0.5f) * spacingVertical
+                if (yUp >= 0 && yUp <= visualizerHeight) {
+                    localCanvas.drawCircle(x, yUp, dotRadius, paint)
+                }
+                val yDown = centerLineY + (row + 0.5f) * spacingVertical
+                if (yDown >= 0 && yDown <= visualizerHeight) {
+                    localCanvas.drawCircle(x, yDown, dotRadius, paint)
                 }
             }
         }
-    }
-
-
-    private fun clearVisualization() {
-        visualizerBitmap?.eraseColor(Color.TRANSPARENT)
-        bytes = null
     }
 
     fun getVisualizerBitmap(): Bitmap? {

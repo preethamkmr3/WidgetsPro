@@ -386,15 +386,6 @@
                 android:resource="@xml/music_simple_widget_info" />
         </receiver>
 
-        <receiver
-            android:name=".widgets.music.MusicVisualizationToggleReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.example.musicsimplewidget.ACTION_TOGGLE_VISUALIZATION"/>
-            </intent-filter>
-        </receiver>
-
-
         <service
             android:name=".services.music.MediaMonitorService"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
