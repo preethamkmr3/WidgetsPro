@@ -32,6 +32,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
+            android:textAlignment="center"
             android:textColor="@color/text_color"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -42,6 +43,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
+            android:textAlignment="center"
             android:textColor="@color/text_color"
             android:textSize="10sp" />
 

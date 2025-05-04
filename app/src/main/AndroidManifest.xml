@@ -34,9 +34,6 @@
     <uses-permission
         android:name="android.permission.READ_MEDIA_VIDEO"
         tools:ignore="SelectedPhotoAccess" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -79,9 +76,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="false">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
@@ -386,18 +380,27 @@
                 <action android:name="com.example.musicsimplewidget.ACTION_NEXT"/>
                 <action android:name="com.example.musicsimplewidget.ACTION_PREVIOUS"/>
                 <action android:name="com.example.musicsimplewidget.ACTION_MEDIA_UPDATE"/>
-            </intent-filter>
+                <action android:name="com.example.musicsimplewidget.ACTION_TOGGLE_VISUALIZATION"/> </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/music_simple_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".widgets.music.MusicVisualizationToggleReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.musicsimplewidget.ACTION_TOGGLE_VISUALIZATION"/>
+            </intent-filter>
+        </receiver>
+
 
         <service
             android:name=".services.music.MediaMonitorService"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="systemExempted" >
+            android:foregroundServiceType="systemExempted">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
