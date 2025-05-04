@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
@@ -110,15 +109,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             currentWidgetIds.forEach { id ->
                 visualizerDrawers[id]?.updateColor()
             }
-        }
-
-        fun updateWidget(
-            context: Context,
-            appWidgetManager: AppWidgetManager,
-            appWidgetId: Int,
-            isWidgetVisible: Boolean
-        ) {
-            updateAppWidgetInternal(context, appWidgetManager, appWidgetId, isWidgetVisible)
         }
 
         private fun updateAppWidgetInternal(
@@ -326,7 +316,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
             val nextReqCode = appWidgetId * 10 + 1
             val prevReqCode = appWidgetId * 10 + 2
             val launchReqCode = appWidgetId * 10 + 3
-            val toggleVizReqCode = appWidgetId * 10 + 4
 
             val playPauseIntent = Intent(context, MusicSimpleWidgetProvider::class.java).apply {
                 action = ACTION_PLAY_PAUSE
@@ -364,21 +353,10 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            val toggleVizIntent = Intent(context, MusicSimpleWidgetProvider::class.java).apply {
-                action = ACTION_TOGGLE_VISUALIZATION
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                data = Uri.parse("widget://$appWidgetId/togglevis")
-            }
-            val toggleVizPendingIntent = PendingIntent.getBroadcast(
-                context, toggleVizReqCode, toggleVizIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
             views.setOnClickPendingIntent(R.id.button_play_pause, playPausePendingIntent)
             views.setOnClickPendingIntent(R.id.button_next, nextPendingIntent)
             views.setOnClickPendingIntent(R.id.button_previous, prevPendingIntent)
             views.setOnClickPendingIntent(R.id.image_album_art, launchPendingIntent)
-            views.setOnClickPendingIntent(R.id.visualizer_image_view, toggleVizPendingIntent)
         }
 
 
@@ -480,7 +458,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
         val drawer = visualizerDrawers.getOrPut(appWidgetId) { MusicVisualizerDrawer(context.applicationContext) }
         if (newOptions != null) {
             val minHeightDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 60)
-            val minWidthDp = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
 
             val targetHeightDp = (minHeightDp * 0.5).toInt().coerceIn(25, 50)
             val targetWidthDp = (targetHeightDp * 1.5).toInt()
@@ -512,7 +489,6 @@ class MusicSimpleWidgetProvider : AppWidgetProvider() {
 
             val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
             val minHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 60)
-            val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
             val targetHeightDp = (minHeightDp * 0.5).toInt().coerceIn(25, 50)
             val targetWidthDp = (targetHeightDp * 1.5).toInt()
             val visualizerHeightPx = targetHeightDp.dpToPx(context)
