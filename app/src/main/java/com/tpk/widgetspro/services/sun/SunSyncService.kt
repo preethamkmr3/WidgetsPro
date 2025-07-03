@@ -35,8 +35,11 @@ class SunSyncService : BaseMonitorService() {
                 currentInterval = prefs?.getInt("sun_interval", 60)?.coerceAtLeast(1) ?: 60
                 val lastFetchDate = prefs?.getString("last_fetch_date", null)
                 val today = LocalDate.now().toString()
-                if (lastFetchDate != today) fetchSunriseSunsetData()
-                fetchWeatherData()
+
+                if (lastFetchDate != today) {
+                    fetchSunriseSunsetData()
+                    fetchWeatherData()
+                }
                 updateWidgets()
             }
             handler.postDelayed(this, currentInterval * 1000L)
@@ -61,10 +64,10 @@ class SunSyncService : BaseMonitorService() {
             val today = LocalDate.now()
             val tomorrow = today.plusDays(1)
 
-            fetchData("https://api.met.no/weatherapi/sunrise/2.0/.json?lat=$latitude&lon=$longitude&date=$today")?.let {
+            fetchData("https://api.met.no/weatherapi/sunrise/3.0/sun?lat=$latitude&lon=$longitude&date=$today")?.let {
                 parseAndSaveSunriseSunset(it, today.toString(), "today")
             }
-            fetchData("https://api.met.no/weatherapi/sunrise/2.0/.json?lat=$latitude&lon=$longitude&date=$tomorrow")?.let {
+            fetchData("https://api.met.no/weatherapi/sunrise/3.0/sun?lat=$latitude&lon=$longitude&date=$tomorrow")?.let {
                 parseAndSaveSunriseSunset(it, tomorrow.toString(), "tomorrow")
             }
         }
@@ -72,8 +75,17 @@ class SunSyncService : BaseMonitorService() {
 
     private suspend fun fetchData(url: String): String? = withContext(Dispatchers.IO) {
         try {
-            val request = Request.Builder().url(url).header("User-Agent", "MyWeatherApp/1.0").build()
-            client.newCall(request).execute().takeIf { it.isSuccessful }?.body?.string()
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", "Widgets Pro")
+                .header("Accept", "application/json")
+                .build()
+
+            val response = client.newCall(request).execute()
+            if (!response.isSuccessful) {
+                return@withContext null
+            }
+            return@withContext response.body?.string()
         } catch (e: Exception) {
             null
         }
@@ -82,12 +94,21 @@ class SunSyncService : BaseMonitorService() {
     private fun parseAndSaveSunriseSunset(json: String, date: String, keyPrefix: String) {
         try {
             val jsonObject = JSONObject(json)
-            val timeObject = jsonObject.getJSONObject("location").getJSONArray("time").getJSONObject(0)
-            val sunriseStr = timeObject.getString("sunrise")
-            val sunsetStr = timeObject.getString("sunset")
+            val properties = jsonObject.getJSONObject("properties")
 
-            val sunriseLocal = OffsetDateTime.parse(sunriseStr).atZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
-            val sunsetLocal = OffsetDateTime.parse(sunsetStr).atZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
+            val sunriseObj = properties.getJSONObject("sunrise")
+            val sunsetObj = properties.getJSONObject("sunset")
+
+            val sunriseStr = sunriseObj.getString("time")
+            val sunsetStr = sunsetObj.getString("time")
+
+            val sunriseLocal = OffsetDateTime.parse(sunriseStr)
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalTime()
+
+            val sunsetLocal = OffsetDateTime.parse(sunsetStr)
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .toLocalTime()
 
             getSharedPreferences("widget_prefs", Context.MODE_PRIVATE).edit().apply {
                 if (keyPrefix == "today") {
@@ -119,7 +140,11 @@ class SunSyncService : BaseMonitorService() {
             val appWidgetManager = AppWidgetManager.getInstance(this)
             val componentName = ComponentName(this, SunTrackerWidget::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-            if (appWidgetIds.isEmpty()) stopSelf() else CommonUtils.updateAllWidgets(this, SunTrackerWidget::class.java)
+            if (appWidgetIds.isEmpty()) {
+                stopSelf()
+            } else {
+                CommonUtils.updateAllWidgets(this, SunTrackerWidget::class.java)
+            }
         }
     }
 
@@ -131,11 +156,13 @@ class SunSyncService : BaseMonitorService() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, SunTrackerWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-        if (appWidgetIds.isEmpty()) stopSelf() else {
+        if (appWidgetIds.isEmpty()) {
+            stopSelf()
+        } else {
             handler.removeCallbacks(updateRunnable)
             handler.post(updateRunnable)
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     private val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
