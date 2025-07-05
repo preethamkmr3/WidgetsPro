@@ -169,4 +169,5 @@
     <string name="manage_accessibility_switch">Manage Accessibility Service</string>
     <string name="ok">Ok</string>
     <string name="gif_widget_frame">GIF Widget Frame</string>
+    <string name="gif_wigdet_bg">GIF Widget Background</string>
 </resources>

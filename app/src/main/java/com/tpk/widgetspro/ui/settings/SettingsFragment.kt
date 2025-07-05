@@ -75,6 +75,7 @@ class SettingsFragment : Fragment() {
     private lateinit var switchUsageAccess: MaterialSwitch
     private lateinit var switchAccessibilitySettings: MaterialSwitch
     private lateinit var switchGifMargin: MaterialSwitch
+    private lateinit var switchGifBackground: MaterialSwitch
     private val REQUEST_RECORD_AUDIO_PERMISSION = 101
     private val enumOptions = arrayOf(
         "black", "blue", "white", "silver", "transparent",
@@ -164,7 +165,7 @@ class SettingsFragment : Fragment() {
         switchUsageAccess = view.findViewById(R.id.switch_usage_access)
         switchAccessibilitySettings = view.findViewById(R.id.switch_accessibility_settings)
         switchGifMargin = view.findViewById(R.id.switch_gif_margin)
-
+        switchGifBackground = view.findViewById(R.id.switch_gif_background)
 
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         seekBarCpu.progress = prefs.getInt("cpu_interval", 60)
@@ -287,6 +288,13 @@ class SettingsFragment : Fragment() {
 
         switchGifMargin.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("gif_margin_enabled", isChecked).apply()
+            updateAllGifWidgets()
+        }
+
+        switchGifBackground.isChecked = prefs.getBoolean("gif_background_transparent", false)
+
+        switchGifBackground.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("gif_background_transparent", isChecked).apply()
             updateAllGifWidgets()
         }
     }

@@ -73,6 +73,14 @@
                     style="@style/CustomTextView"
                     android:paddingLeft="10dp"/>
 
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_gif_background"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gif_wigdet_bg"
+                    style="@style/CustomTextView"
+                    android:paddingLeft="10dp"/>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -325,8 +325,14 @@ class AnimationService : BaseMonitorService() {
                 val remoteViews = RemoteViews(packageName, R.layout.gif_widget_layout)
                 val prefs = getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
                 val marginEnabled = prefs.getBoolean("gif_margin_enabled", false)
+                val isTransparent = prefs.getBoolean("gif_background_transparent", false)
                 val padding = if (marginEnabled) (9 * resources.displayMetrics.density).toInt() else 0
                 remoteViews.setViewPadding(R.id.gif_widget_container, padding, padding, padding, padding)
+                if (!isTransparent) {
+                    remoteViews.setInt(R.id.gif_widget_container, "setBackgroundResource", android.R.color.transparent)
+                } else {
+                    remoteViews.setInt(R.id.gif_widget_container, "setBackgroundResource", R.color.shape_background_color)
+                }
                 remoteViews.setImageViewBitmap(R.id.imageView, frame.bitmap)
                 appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
             } catch (e: Exception) {
@@ -343,6 +349,7 @@ class AnimationService : BaseMonitorService() {
             val widgetsToRemove = mutableListOf<Int>()
             val prefs = getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
             val marginEnabled = prefs.getBoolean("gif_margin_enabled", false)
+            val isTransparent = prefs.getBoolean("gif_background_transparent", false)
             val padding = if (marginEnabled) (9 * resources.displayMetrics.density).toInt() else 0
             group.widgetIds.forEach { appWidgetId ->
                 widgetData[appWidgetId]?.let { data ->
@@ -366,6 +373,11 @@ class AnimationService : BaseMonitorService() {
 
                     try {
                         val remoteViews = RemoteViews(packageName, R.layout.gif_widget_layout)
+                        if (!isTransparent) {
+                            remoteViews.setInt(R.id.gif_widget_container, "setBackgroundResource", android.R.color.transparent)
+                        } else {
+                            remoteViews.setInt(R.id.gif_widget_container, "setBackgroundResource", R.color.shape_background_color)
+                        }
                         remoteViews.setViewPadding(R.id.gif_widget_container, padding, padding, padding, padding)
                         remoteViews.setImageViewBitmap(R.id.imageView, frame.bitmap)
                         appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
