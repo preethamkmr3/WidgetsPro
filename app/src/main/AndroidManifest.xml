@@ -403,5 +403,23 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".widgets.bottleSpinner.BottleSpinnerWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/bottle_spinner_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".services.bottleSpinner.BottleSpinnerAnimationService"
+            android:foregroundServiceType="systemExempted"
+            android:exported="false" />
+
     </application>
 </manifest>

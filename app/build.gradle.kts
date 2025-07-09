@@ -25,8 +25,8 @@ android {
         applicationId = "com.tpk.widgetspro"
         minSdk = 31
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.2.4"
+        versionCode = 7
+        versionName = "1.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

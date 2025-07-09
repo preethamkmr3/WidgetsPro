@@ -170,4 +170,6 @@
     <string name="ok">Ok</string>
     <string name="gif_widget_frame">GIF Widget Frame</string>
     <string name="gif_wigdet_bg">GIF Widget Background</string>
+    <string name="bottle_desc">Spin the bottle widget</string>
+    <string name="bottle_spinner_description">A fun spin the bottle game widget.</string>
 </resources>

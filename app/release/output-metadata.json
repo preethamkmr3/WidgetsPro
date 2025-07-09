@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 6,
-      "versionName": "1.2.4",
-      "outputFile": "Widgets-Pro-release-v1.2.4.apk"
+      "versionCode": 7,
+      "versionName": "1.2.5",
+      "outputFile": "Widgets-Pro-release-v1.2.5.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/Widgets-Pro-release-v1.2.4.dm"
+        "baselineProfiles/1/Widgets-Pro-release-v1.2.5.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/Widgets-Pro-release-v1.2.4.dm"
+        "baselineProfiles/0/Widgets-Pro-release-v1.2.5.dm"
       ]
     }
   ],

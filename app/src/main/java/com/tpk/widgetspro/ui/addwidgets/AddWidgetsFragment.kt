@@ -36,6 +36,7 @@ import com.tpk.widgetspro.widgets.analogclock.AnalogClockWidgetProvider_1
 import com.tpk.widgetspro.widgets.analogclock.AnalogClockWidgetProvider_2
 import com.tpk.widgetspro.widgets.battery.BatteryWidgetProvider
 import com.tpk.widgetspro.widgets.bluetooth.BluetoothWidgetProvider
+import com.tpk.widgetspro.widgets.bottleSpinner.BottleSpinnerWidgetProvider
 import com.tpk.widgetspro.widgets.caffeine.CaffeineWidget
 import com.tpk.widgetspro.widgets.cpu.CpuWidgetProvider
 import com.tpk.widgetspro.widgets.networkusage.NetworkSpeedWidgetProviderCircle
@@ -111,7 +112,7 @@ class AddWidgetsFragment : Fragment() {
 
         setupWidgetPreview(view.findViewById(R.id.preview_gif), R.layout.gif_widget_preview_static)
         setupWidgetPreview(view.findViewById(R.id.preview_music), R.layout.music_widget_preview_static)
-
+        setupWidgetPreview(view.findViewById(R.id.preview_spin_the_bottle), R.layout.spin_the_bottle_preview_static)
 
         view.findViewById<Button>(R.id.button1).setOnClickListener {
             if (hasCpuPermissions())
@@ -161,6 +162,9 @@ class AddWidgetsFragment : Fragment() {
         }
         view.findViewById<Button>(R.id.button_music).setOnClickListener {
             requestMusicWidgetInstallation()
+        }
+        view.findViewById<Button>(R.id.button_spin_the_bottle).setOnClickListener {
+            requestWidgetInstallation(BottleSpinnerWidgetProvider::class.java)
         }
     }
 

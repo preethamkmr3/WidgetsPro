@@ -767,6 +767,60 @@
 
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="6dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/title_spin_the_bottle"
+                        style="@style/CustomTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_horizontal"
+                        android:text="Spin the Bottle Widget"
+                        android:textAppearance="?attr/textAppearanceCaption" />
+
+                    <FrameLayout
+                        android:id="@+id/preview_spin_the_bottle"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/title_spin_the_bottle"
+                        android:layout_above="@+id/button_spin_the_bottle"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/preview_shape_circle"/>
+
+                    <Button
+                        android:id="@+id/button_spin_the_bottle"
+                        style="@style/CustomTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="10dp"
+                        android:paddingVertical="10dp"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="12sp"
+                        android:minHeight="0dp"
+                        android:minWidth="0dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/add"/>
+
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
         </GridLayout>
 
     </LinearLayout>
