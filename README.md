@@ -8,6 +8,6 @@ Currently the app support Android 14 and above. Will soon lower the android requ
 ## Screenshots
 <p float="left">
   <img src="images/widget_list.jpg" alt="Widget List" width="40%" />
-  &nbsp;&nbsp; <!-- adds visible space -->
+  &nbsp;
   <img src="images/widget_placed.jpg" alt="Widget Placed" width="40%" />
 </p>
