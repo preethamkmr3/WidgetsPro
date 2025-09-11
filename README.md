@@ -4,3 +4,11 @@ Took drawable resources from various apps
 For support and discussion please use - https://t.me/widgets_pro
 
 Currently the app support Android 14 and above. Will soon lower the android requirements.
+
+## Screenshots
+
+### Widget Placed
+![Widget Placed](images/widget_placed.jpg)
+
+### Widget List
+![Widget List](images/widget_list.jpg)
