@@ -7,8 +7,7 @@ Currently the app support Android 14 and above. Will soon lower the android requ
 
 ## Screenshots
 
-### Widget List
-<img src="images/widget_list.jpg" alt="Widget List" width="30%">
-
-### Widget Placed
-<img src="images/widget_placed.jpg" alt="Widget Placed" width="30%">
+<p float="left">
+  <img src="images/widget_list.jpg" alt="Widget List" width="30%" />
+  <img src="images/widget_placed.jpg" alt="Widget Placed" width="30%" />
+</p>
