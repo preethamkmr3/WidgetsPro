@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo.png" alt="Logo" width="50"/>
+  <img src="images/logo.png" alt="Logo" width="80"/>
 </p>
 
 <h1 align="center">WidgetsPro</h1>
