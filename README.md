@@ -3,6 +3,7 @@
 </p>
 
 <h1 align="center">WidgetsPro</h1>
+
 > **Note:** Needs **Shizuku** to run properly.
 
 Inspired by a concept and newthings, I made this with Al's help to follow the same design language like nothing, because I daily drive it. I'm noob.
