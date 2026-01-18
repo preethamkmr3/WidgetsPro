@@ -34,6 +34,13 @@ class PermissionActivity : AppCompatActivity() {
             return
         }
 
+        if (areBasicPermissionsGrantedInPage1() && areAllPermissionsGrantedInPage2()) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_permission)
 
         viewPager = findViewById(R.id.permission_viewpager)
