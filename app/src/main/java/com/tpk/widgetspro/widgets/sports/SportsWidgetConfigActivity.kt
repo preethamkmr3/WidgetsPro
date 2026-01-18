@@ -81,7 +81,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
         }
 
         val titleTextView = TextView(this).apply {
-            text = "Select Teams"
+            text = getString(R.string.select_teams)
             setTextColor(ContextCompat.getColor(this@SportsWidgetConfigActivity, R.color.text_color))
             textSize = 18f
             textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -93,7 +93,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
         leagueSpinner = Spinner(this)
         homeTeamSpinner = Spinner(this)
         awayTeamSpinner = Spinner(this)
-        saveButton = Button(this).apply { text = "Save" }
+        saveButton = Button(this).apply { text = getString(R.string.save) }
 
         val spinnerParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -156,7 +156,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
                 setResult(RESULT_OK, resultValue)
                 finish()
             } else {
-                Toast.makeText(this, "Please select teams", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_please_select_teams, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -179,7 +179,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
                 sportSpinner.adapter = adapter
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@SportsWidgetConfigActivity, "Failed to load sports", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SportsWidgetConfigActivity, R.string.toast_failed_load_sports, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -203,7 +203,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
                 leagueSpinner.adapter = adapter
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@SportsWidgetConfigActivity, "Failed to load leagues", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SportsWidgetConfigActivity, R.string.toast_failed_load_leagues, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -228,7 +228,7 @@ class SportsWidgetConfigActivity : AppCompatActivity() {
                 awayTeamSpinner.adapter = adapter
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@SportsWidgetConfigActivity, "Failed to load teams", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SportsWidgetConfigActivity, R.string.toast_failed_load_teams, Toast.LENGTH_SHORT).show()
             }
         }
     }

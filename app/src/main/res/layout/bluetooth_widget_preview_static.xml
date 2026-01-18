@@ -12,6 +12,6 @@
         android:layout_height="30dp"
         android:src="@drawable/ic_bluetooth_placeholder"
         app:tint="?attr/colorAccent" />
-    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8sp" android:text="Device"/>
-    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8sp" android:text="--%"/>
+    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8sp" android:text="@string/preview_device"/>
+    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="8sp" android:text="@string/preview_battery_placeholder"/>
 </LinearLayout>

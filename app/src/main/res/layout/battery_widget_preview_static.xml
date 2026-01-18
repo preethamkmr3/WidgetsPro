@@ -12,14 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="10sp"
-        android:text="Battery" />
+        android:text="@string/preview_battery" />
 
     <TextView
         style="@style/CustomTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="8sp"
-        android:text="Percent | Cycles" />
+        android:text="@string/preview_percent_cycles" />
 
     <ImageView
         android:layout_width="match_parent"

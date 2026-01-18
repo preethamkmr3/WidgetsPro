@@ -12,14 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="10sp"
-        android:text="CPU" />
+        android:text="@string/preview_cpu" />
 
     <TextView
         style="@style/CustomTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="8sp"
-        android:text="Usage | Temp" />
+        android:text="@string/preview_usage_temp" />
 
     <ImageView
         android:layout_width="match_parent"

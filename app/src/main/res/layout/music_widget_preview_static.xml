@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="Music Title"
+            android:text="@string/preview_music_title"
             android:textSize="10sp"
             android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="Artist Name"
+            android:text="@string/preview_artist_name"
             android:textSize="8sp" />
 
         <LinearLayout

@@ -101,7 +101,7 @@ class SettingsFragment : Fragment() {
 
                     Toast.makeText(requireContext(), R.string.gif_selected_message, Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireContext(), "Failed to copy GIF", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.toast_failed_copy_gif, Toast.LENGTH_SHORT).show()
                 }
                 pendingAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
             }
@@ -277,7 +277,7 @@ class SettingsFragment : Fragment() {
                 requestMicrophonePermission()
             } else {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(requireContext(), "Please disable via App Settings", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.toast_disable_via_settings, Toast.LENGTH_SHORT).show()
                     switchMicrophone.isChecked = true
                 }
             }
@@ -364,7 +364,7 @@ class SettingsFragment : Fragment() {
         try {
             settingsLauncher.launch(intent)
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Could not open Accessibility settings.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.toast_could_not_open_accessibility, Toast.LENGTH_SHORT).show()
             updatePermissionSwitchStates()
         }
     }
@@ -376,7 +376,7 @@ class SettingsFragment : Fragment() {
                 try {
                     settingsLauncher.launch(intent)
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Could not open Usage Access settings.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.toast_could_not_open_usage_access, Toast.LENGTH_SHORT).show()
                     updatePermissionSwitchStates()
                 }
             }
@@ -440,7 +440,7 @@ class SettingsFragment : Fragment() {
             try {
                 selectFileLauncher.launch(arrayOf("image/gif"))
             } catch (e: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "No file picker app found to select a GIF.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), R.string.toast_no_file_picker, Toast.LENGTH_LONG).show()
             }
         }.setNegativeButton(R.string.cancel, null).create().apply {
             setOnShowListener {
@@ -510,7 +510,7 @@ class SettingsFragment : Fragment() {
                         requireContext().startService(intent)
                         Toast.makeText(requireContext(), R.string.widgets_synced, Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Failed to start sync service", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), R.string.toast_failed_start_sync, Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Toast.makeText(requireContext(), R.string.select_two_widgets, Toast.LENGTH_SHORT).show()
@@ -742,7 +742,7 @@ class SettingsFragment : Fragment() {
     private fun resetBluetoothImage() {
         val appWidgetIds = getBluetoothWidgetIds(requireContext())
         if (appWidgetIds.isEmpty()) {
-            Toast.makeText(requireContext(), "No Bluetooth widgets found to reset.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.toast_no_bluetooth_widgets, Toast.LENGTH_SHORT).show()
             return
         }
         appWidgetIds.forEach { appWidgetId ->
@@ -769,8 +769,8 @@ class SettingsFragment : Fragment() {
                     requireContext().sendBroadcast(updateIntent)
 
                     Toast.makeText(requireContext(), getString(R.string.bluetooth_reset_message, deviceName), Toast.LENGTH_SHORT).show()
-                } ?: Toast.makeText(requireContext(), "Bluetooth device not found for address: $address", Toast.LENGTH_SHORT).show()
-            } ?: Toast.makeText(requireContext(), "No device selected for widget ID: $appWidgetId", Toast.LENGTH_SHORT).show()
+                } ?: Toast.makeText(requireContext(), getString(R.string.toast_bluetooth_device_not_found, address), Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(requireContext(), getString(R.string.toast_no_device_selected, appWidgetId), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -836,7 +836,7 @@ class SettingsFragment : Fragment() {
             } else {
                 if (isAdded) {
                     switchMicrophone.isChecked = false
-                    Toast.makeText(requireContext(), "Microphone permission denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.toast_microphone_denied, Toast.LENGTH_SHORT).show()
                 }
             }
         }

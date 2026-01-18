@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Teams"
+            android:text="@string/select_teams"
             android:textColor="@color/text_color"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -51,6 +51,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:textColor="@color/text_color"
-            android:text="Save"/>
+            android:text="@string/save"/>
     </LinearLayout>
 </LinearLayout>

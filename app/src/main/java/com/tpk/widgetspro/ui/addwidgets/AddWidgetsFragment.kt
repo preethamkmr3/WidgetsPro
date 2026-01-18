@@ -119,7 +119,7 @@ class AddWidgetsFragment : Fragment() {
             if (hasCpuPermissions())
                 requestWidgetInstallation(CpuWidgetProvider::class.java)
             else
-                Toast.makeText(requireContext(), "Provide Root/Shizuku access", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.toast_provide_root_shizuku, Toast.LENGTH_SHORT).show()
         }
         view.findViewById<Button>(R.id.button2).setOnClickListener {
             requestWidgetInstallation(BatteryWidgetProvider::class.java)
@@ -182,7 +182,7 @@ class AddWidgetsFragment : Fragment() {
         } catch (e: Exception) {
             previewContainer.removeAllViews()
             val errorText = TextView(requireContext()).apply {
-                text = "Preview failed"
+                text = getString(R.string.toast_preview_failed)
                 textSize = 8f
             }
             val params = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
@@ -261,14 +261,14 @@ class AddWidgetsFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle(R.string.permission_required_title)
         builder.setMessage(R.string.permission_required_message)
-        builder.setPositiveButton("Open Shizuku") { _, _ ->
+        builder.setPositiveButton(R.string.open_shizuku) { _, _ ->
             if (isShizukuInstalled())
                 checkPermissions()
             else
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/")))
             activity?.finish()
         }
-        builder.setNegativeButton("Exit") { _, _ -> activity?.finish() }
+        builder.setNegativeButton(R.string.exit) { _, _ -> activity?.finish() }
         builder.setCancelable(false)
         builder.create()
         val dialog = builder.create()
@@ -297,12 +297,12 @@ class AddWidgetsFragment : Fragment() {
             requestWidgetInstallation(MusicSimpleWidgetProvider::class.java)
         } else {
             val builder = AlertDialog.Builder(requireContext())
-                .setTitle("Permission Required")
-                .setMessage("The Music Widget needs Notification Access to function properly. Please enable it in Settings.")
-                .setPositiveButton("Go to Settings") { _, _ ->
+                .setTitle(R.string.toast_permission_required)
+                .setMessage(R.string.toast_music_widget_permission_msg)
+                .setPositiveButton(R.string.go_to_settings) { _, _ ->
                     startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                 }
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
             val dialog = builder.create()
             dialog.show()
             dialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout_bg_alt)

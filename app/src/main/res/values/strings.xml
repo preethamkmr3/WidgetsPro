@@ -174,4 +174,49 @@
     <string name="bottle_spinner_description">A fun spin the bottle game widget.</string>
     <string name="sports_widget_title">Sports Widget</string>
     <string name="sports_widget_description">Sports Widget</string>
+
+    <!-- Toast Messages -->
+    <string name="toast_provide_root_shizuku">Provide Root/Shizuku access</string>
+    <string name="toast_preview_failed">Preview failed</string>
+    <string name="toast_permission_required">Permission Required</string>
+    <string name="toast_music_widget_permission_msg">The Music Widget needs Notification Access to function properly. Please enable it in Settings.</string>
+    <string name="toast_failed_copy_gif">Failed to copy GIF</string>
+    <string name="toast_disable_via_settings">Please disable via App Settings</string>
+    <string name="toast_could_not_open_accessibility">Could not open Accessibility settings.</string>
+    <string name="toast_could_not_open_usage_access">Could not open Usage Access settings.</string>
+    <string name="toast_no_file_picker">No file picker app found to select a GIF.</string>
+    <string name="toast_failed_start_sync">Failed to start sync service</string>
+    <string name="toast_no_bluetooth_widgets">No Bluetooth widgets found to reset.</string>
+    <string name="toast_bluetooth_device_not_found">Bluetooth device not found for address: %1$s</string>
+    <string name="toast_no_device_selected">No device selected for widget ID: %1$s</string>
+    <string name="toast_microphone_denied">Microphone permission denied</string>
+    <string name="toast_please_select_teams">Please select teams</string>
+    <string name="toast_failed_load_sports">Failed to load sports</string>
+    <string name="toast_failed_load_leagues">Failed to load leagues</string>
+    <string name="toast_failed_load_teams">Failed to load teams</string>
+    <string name="toast_unknown_error">Unknown error</string>
+
+    <!-- Dialog Buttons -->
+    <string name="open_shizuku">Open Shizuku</string>
+    <string name="save">Save</string>
+    <string name="next">Next</string>
+
+    <!-- Widget Preview Text -->
+    <string name="preview_battery">Battery</string>
+    <string name="preview_percent_cycles">Percent | Cycles</string>
+    <string name="preview_device">Device</string>
+    <string name="preview_battery_placeholder">--%</string>
+    <string name="preview_cpu">CPU</string>
+    <string name="preview_usage_temp">Usage | Temp</string>
+    <string name="preview_music_title">Music Title</string>
+    <string name="preview_artist_name">Artist Name</string>
+    <string name="preview_network_speed">0 B/s</string>
+    <string name="preview_data_usage">0 B</string>
+    <string name="preview_time_temp">0h 0m | 0°C</string>
+    <string name="preview_score">0</string>
+    <string name="preview_vs">vs</string>
+    <string name="preview_home_team">Home Team</string>
+    <string name="preview_away_team">Away Team</string>
+    <string name="select_teams">Select Teams</string>
+    <string name="spin_the_bottle_widget">Spin the Bottle Widget</string>
 </resources>

@@ -364,7 +364,7 @@
         <service
             android:name=".services.LauncherStateAccessibilityService"
             android:exported="true"
-            android:label="Launcher State Detection"
+            android:label="Widgets Pro"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />

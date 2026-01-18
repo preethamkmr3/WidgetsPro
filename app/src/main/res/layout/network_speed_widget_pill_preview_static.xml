@@ -13,5 +13,5 @@
         android:layout_marginEnd="4dp"
         android:src="@drawable/network_speed_widget_icon"
         app:tint="?attr/colorAccent" />
-    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10sp" android:text="0 B/s"/>
+    <TextView style="@style/CustomTextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10sp" android:text="@string/preview_network_speed"/>
 </LinearLayout>

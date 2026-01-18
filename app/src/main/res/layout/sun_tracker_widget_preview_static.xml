@@ -22,5 +22,5 @@
         android:layout_gravity="bottom|center_horizontal"
         android:textSize="7sp"
         android:layout_marginBottom="4dp"
-        android:text="0h 0m | 0°C"/>
+        android:text="@string/preview_time_temp"/>
 </FrameLayout>
