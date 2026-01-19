@@ -80,4 +80,11 @@
     <string name="preview_home_team">Time da Casa</string>
     <string name="preview_away_team">Time Visitante</string>
     <string name="select_teams">Selecionar Times</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">Intervalo de atualização de RAM (segundos)</string>
+    <string name="cpu_update_interval">Intervalo de atualização de CPU (segundos)</string>
+    <string name="network_speed_usage_interval">Intervalo de atualização de velocidade da rede (segundos)</string>
+    <string name="wifi_data_usage_interval">Intervalo de atualização de uso de dados Wifi (minutos)</string>
+    <string name="sim_data_usage_interval">Intervalo de atualização de uso de dados SIM (minutos)</string>
+    <string name="add_notes_widget">Adicionar</string>
 </resources>

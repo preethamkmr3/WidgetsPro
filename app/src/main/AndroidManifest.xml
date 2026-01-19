@@ -95,6 +95,23 @@
                 android:resource="@xml/cpu_widget_info" />
         </receiver>
 
+
+        <service
+            android:name=".services.ram.RamMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="systemExempted" />
+
+        <receiver
+            android:name=".widgets.ram.RamWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ram_widget_info" />
+        </receiver>
+
         <service
             android:name=".services.battery.BatteryMonitorService"
             android:exported="false"

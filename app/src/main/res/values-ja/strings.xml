@@ -86,4 +86,10 @@
     <string name="preview_home_team">ホームチーム</string>
     <string name="preview_away_team">アウェイチーム</string>
     <string name="select_teams">チームを選択</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">RAM更新間隔（秒）</string>
+    <string name="cpu_update_interval">CPU更新間隔（秒）</string>
+    <string name="network_speed_usage_interval">ネットワーク速度更新間隔（秒）</string>
+    <string name="wifi_data_usage_interval">Wifiデータ使用量更新間隔（分）</string>
+    <string name="sim_data_usage_interval">SIMデータ使用量更新間隔（分）</string>
 </resources>

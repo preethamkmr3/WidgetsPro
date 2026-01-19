@@ -80,4 +80,11 @@
     <string name="preview_home_team">الفريق المضيف</string>
     <string name="preview_away_team">الفريق الضيف</string>
     <string name="select_teams">اختر الفرق</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">فاصل تحديث RAM (ثواني)</string>
+    <string name="cpu_update_interval">فاصل تحديث CPU (ثواني)</string>
+    <string name="network_speed_usage_interval">فاصل تحديث سرعة الشبكة (ثواني)</string>
+    <string name="wifi_data_usage_interval">فاصل تحديث استخدام بيانات Wifi (دائق)</string>
+    <string name="sim_data_usage_interval">فاصل تحديث استخدام بيانات SIM (دائق)</string>
+    <string name="add_notes_widget">إضافة</string>
 </resources>

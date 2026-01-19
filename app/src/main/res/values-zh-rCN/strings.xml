@@ -86,4 +86,10 @@
     <string name="preview_home_team">主队</string>
     <string name="preview_away_team">客队</string>
     <string name="select_teams">选择球队</string>
+    <string name="widget_ram_name">内存</string>
+    <string name="ram_update_interval">内存更新间隔（秒）</string>
+    <string name="cpu_update_interval">CPU更新间隔（秒）</string>
+    <string name="network_speed_usage_interval">网速更新间隔（秒）</string>
+    <string name="wifi_data_usage_interval">Wifi 数据用量更新间隔（分钟）</string>
+    <string name="sim_data_usage_interval">SIM 数据用量更新间隔（分钟）</string>
 </resources>

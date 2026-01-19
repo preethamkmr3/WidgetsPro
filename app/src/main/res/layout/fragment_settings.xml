@@ -138,6 +138,37 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
+                    android:text="@string/ram_update_interval" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="10">
+
+                    <SeekBar
+                        android:id="@+id/seekBarRam"
+                        android:layout_width="0dp"
+                        android:layout_height="30dp"
+                        android:layout_weight="8"
+                        android:max="60"
+                        android:min="1"
+                        android:thumbTint="@color/text_color" />
+
+                    <TextView
+                        android:id="@+id/tvRamValue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:gravity="center"
+                        android:text="@string/_60"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
                     android:text="@string/battery_update_interval" />
 
                 <LinearLayout
