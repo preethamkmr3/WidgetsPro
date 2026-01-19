@@ -162,4 +162,9 @@
     <string name="preview_away_team">Auswärtsteam</string>
     <string name="select_teams">Teams Auswählen</string>
     <string name="spin_the_bottle_widget">Flaschendrehen Widget</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">RAM-Aktualisierungsintervall (Sekunden)</string>
+    <string name="network_speed_usage_interval">Netzwerkgeschwindigkeit-Aktualisierungsintervall (Sekunden)</string>
+    <string name="wifi_data_usage_interval">WLAN-Datenverbrauch-Aktualisierungsintervall (Minuten)</string>
+    <string name="sim_data_usage_interval">SIM-Datenverbrauch-Aktualisierungsintervall (Minuten)</string>
 </resources>

@@ -80,4 +80,11 @@
     <string name="preview_home_team">홈 팀</string>
     <string name="preview_away_team">원정 팀</string>
     <string name="select_teams">팀 선택</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">RAM 업데이트 간격 (초)</string>
+    <string name="cpu_update_interval">CPU 업데이트 간격 (초)</string>
+    <string name="network_speed_usage_interval">네트워크 속도 업데이트 간격 (초)</string>
+    <string name="wifi_data_usage_interval">Wi-Fi 데이터 사용량 업데이트 간격 (분)</string>
+    <string name="sim_data_usage_interval">SIM 데이터 사용량 업데이트 간격 (분)</string>
+    <string name="add_notes_widget">추가</string>
 </resources>

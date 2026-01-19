@@ -80,4 +80,11 @@
     <string name="preview_home_team">Домашняя команда</string>
     <string name="preview_away_team">Гостевая команда</string>
     <string name="select_teams">Выбрать команды</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">Интервал обновления RAM (секунды)</string>
+    <string name="cpu_update_interval">Интервал обновления CPU (секунды)</string>
+    <string name="network_speed_usage_interval">Интервал обновления Скорость сети (секунды)</string>
+    <string name="wifi_data_usage_interval">Интервал обновления Использование данных Wi-Fi (минуты)</string>
+    <string name="sim_data_usage_interval">Интервал обновления Использование данных SIM (минуты)</string>
+    <string name="add_notes_widget">Добавить</string>
 </resources>

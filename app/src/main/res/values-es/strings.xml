@@ -211,4 +211,6 @@
     <string name="preview_away_team">Equipo Visitante</string>
     <string name="select_teams">Seleccionar Equipos</string>
     <string name="spin_the_bottle_widget">Widget de Girar la Botella</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">Intervalo de actualización de RAM (segundos)</string>
 </resources>

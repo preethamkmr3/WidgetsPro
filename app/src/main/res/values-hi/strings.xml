@@ -80,4 +80,11 @@
     <string name="preview_home_team">घरेलू टीम</string>
     <string name="preview_away_team">अतिथि टीम</string>
     <string name="select_teams">टीमें चुनें</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">RAM अपडेट अंतराल (सेकंड)</string>
+    <string name="cpu_update_interval">CPU अपडेट अंतराल (सेकंड)</string>
+    <string name="network_speed_usage_interval">नेटवर्क गति अपडेट अंतराल (सेकंड)</string>
+    <string name="wifi_data_usage_interval">वाईफाई डेटा उपयोग अपडेट अंतराल (मिनट)</string>
+    <string name="sim_data_usage_interval">सिम डेटा उपयोग अपडेट अंतराल (मिनट)</string>
+    <string name="add_notes_widget">जोड़ें</string>
 </resources>

@@ -80,4 +80,11 @@
     <string name="preview_home_team">Squadra di Casa</string>
     <string name="preview_away_team">Squadra Ospite</string>
     <string name="select_teams">Seleziona Squadre</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">Intervallo aggiornamento RAM (secondi)</string>
+    <string name="cpu_update_interval">Intervallo aggiornamento CPU (secondi)</string>
+    <string name="network_speed_usage_interval">Intervallo aggiornamento velocità di rete (secondi)</string>
+    <string name="wifi_data_usage_interval">Intervallo aggiornamento utilizzo dati Wifi (minuti)</string>
+    <string name="sim_data_usage_interval">Intervallo aggiornamento utilizzo dati SIM (minuti)</string>
+    <string name="add_notes_widget">Aggiungi</string>
 </resources>

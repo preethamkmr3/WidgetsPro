@@ -2,7 +2,8 @@
     <string name="app_name">Widgets Pro</string>
     <string name="widgets_pro_running">Widgets Pro Running</string>
     <string name="widgets_pro_active_text">Keeping your widgets active</string>
-    <string name="widget_cpu_name">CPU Widget</string>
+    <string name="widget_cpu_name">CPU</string>
+    <string name="widget_ram_name">RAM</string>
     <string name="widget_battery_name">Battery Widget</string>
     <string name="cpu_widget_needs_special_permissions_to_access_data_so_grant_shizuku_su_access_to_use_it">CPU Widget Needs Special Permissions To Access Data So Grant Shizuku/Su Access To Use It.</string>
     <string name="grant_permissions">Grant Permissions</string>
@@ -28,6 +29,7 @@
     <string name="battery_monitor_text">Battery Monitor</string>
     <string name="battery_update_interval">Battery Update Interval (Minutes)</string>
     <string name="cpu_update_interval">CPU Update Interval (Seconds)</string>
+    <string name="ram_update_interval">RAM Update Interval (Seconds)</string>
     <string name="add_bluetooth_widget">Add</string>
     <string name="add_caffeine_widget">Add</string>
     <string name="add_battery_widget">Add</string>

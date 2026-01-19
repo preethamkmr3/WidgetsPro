@@ -167,4 +167,6 @@
     <string name="preview_away_team">Équipe Visiteuse</string>
     <string name="select_teams">Sélectionner les Équipes</string>
     <string name="spin_the_bottle_widget">Widget Tourner la Bouteille</string>
+    <string name="widget_ram_name">RAM</string>
+    <string name="ram_update_interval">Intervalle de mise à jour RAM (secondes)</string>
 </resources>

@@ -71,6 +71,7 @@ class AddWidgetsFragment : Fragment() {
 
 
         setupWidgetPreview(view.findViewById(R.id.preview_cpu), R.layout.cpu_widget_preview_static)
+        setupWidgetPreview(view.findViewById(R.id.preview_ram), R.layout.ram_widget_layout) // Using layout as preview for now
         setupWidgetPreview(view.findViewById(R.id.preview_battery), R.layout.battery_widget_preview_static)
         setupWidgetPreview(view.findViewById(R.id.preview_caffeine), R.layout.caffeine_widget_preview_static)
         setupWidgetPreview(view.findViewById(R.id.preview_bluetooth), R.layout.bluetooth_widget_preview_static)
@@ -123,6 +124,9 @@ class AddWidgetsFragment : Fragment() {
         }
         view.findViewById<Button>(R.id.button2).setOnClickListener {
             requestWidgetInstallation(BatteryWidgetProvider::class.java)
+        }
+        view.findViewById<Button>(R.id.button_ram).setOnClickListener {
+            requestWidgetInstallation(com.tpk.widgetspro.widgets.ram.RamWidgetProvider::class.java)
         }
         view.findViewById<ImageView>(R.id.imageViewButton).setOnClickListener {
             checkPermissions()

@@ -53,11 +53,13 @@ import java.util.*
 class SettingsFragment : Fragment() {
 
     private lateinit var seekBarCpu: SeekBar
+    private lateinit var seekBarRam: SeekBar
     private lateinit var seekBarBattery: SeekBar
     private lateinit var seekBarWifi: SeekBar
     private lateinit var seekBarSim: SeekBar
     private lateinit var seekBarNetworkSpeed: SeekBar
     private lateinit var tvCpuValue: TextView
+    private lateinit var tvRamValue: TextView
     private lateinit var tvBatteryValue: TextView
     private lateinit var tvWifiValue: TextView
     private lateinit var tvSimValue: TextView
@@ -145,11 +147,13 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         seekBarCpu = view.findViewById(R.id.seekBarCpu)
+        seekBarRam = view.findViewById(R.id.seekBarRam)
         seekBarBattery = view.findViewById(R.id.seekBarBattery)
         seekBarWifi = view.findViewById(R.id.seekBarWifi)
         seekBarSim = view.findViewById(R.id.seekBarSim)
         seekBarNetworkSpeed = view.findViewById(R.id.seekBarNetworkSpeed)
         tvCpuValue = view.findViewById(R.id.tvCpuValue)
+        tvRamValue = view.findViewById(R.id.tvRamValue)
         tvBatteryValue = view.findViewById(R.id.tvBatteryValue)
         tvWifiValue = view.findViewById(R.id.tvWifiValue)
         tvSimValue = view.findViewById(R.id.tvSimValue)
@@ -169,12 +173,14 @@ class SettingsFragment : Fragment() {
 
         val prefs = requireContext().getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         seekBarCpu.progress = prefs.getInt("cpu_interval", 60)
+        seekBarRam.progress = prefs.getInt("ram_interval", 60)
         seekBarBattery.progress = prefs.getInt("battery_interval", 60)
         seekBarWifi.progress = prefs.getInt("wifi_data_usage_interval", 60)
         seekBarSim.progress = prefs.getInt("sim_data_usage_interval", 60)
         seekBarNetworkSpeed.progress = prefs.getInt("network_speed_interval", 60)
 
         tvCpuValue.text = seekBarCpu.progress.toString()
+        tvRamValue.text = seekBarRam.progress.toString()
         tvBatteryValue.text = seekBarBattery.progress.toString()
         tvWifiValue.text = seekBarWifi.progress.toString()
         tvSimValue.text = seekBarSim.progress.toString()
@@ -579,6 +585,15 @@ class SettingsFragment : Fragment() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 prefs.edit().putInt("cpu_interval", seekBar?.progress ?: 60).apply()
+            }
+        })
+        seekBarRam.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tvRamValue.text = progress.toString()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                prefs.edit().putInt("ram_interval", seekBar?.progress ?: 60).apply()
             }
         })
         seekBarBattery.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
