@@ -287,6 +287,17 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/thesportsdb_support"
+            style="@style/CustomTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/thesportsdb_description"
+            android:textColor="?attr/colorAccent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/title_support"
             style="@style/CustomTextView"
             android:layout_width="match_parent"

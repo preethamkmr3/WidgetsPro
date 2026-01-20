@@ -223,4 +223,5 @@
     <string name="spin_the_bottle_widget">Spin the Bottle Widget</string>
     <string name="preview_ram">RAM</string>
     <string name="preview_usage">FREE:     USED:</string>
+    <string name="thesportsdb_description">Huge thanks to TheSportsDB</string>
 </resources>
